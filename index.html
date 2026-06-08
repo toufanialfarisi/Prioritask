@@ -247,7 +247,7 @@
                     <span class="text-xs text-slate-400 font-semibold uppercase">Tugas Aktif</span>
                     <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1" id="active-count">0</span>
                 </div>
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-200">
+                <div class="bg-white p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-200">
                     <span class="text-xs text-slate-400 font-semibold uppercase">Selesai</span>
                     <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1" id="completed-count">0</span>
                 </div>
@@ -279,7 +279,33 @@
                         </div>
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-slate-400">Estimasi Durasi</label>
-                            <input type="text" id="task-duration" placeholder="Contoh: 2 jam" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-800 dark:text-slate-100 transition-all">
+                            <select id="task-duration" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-950 transition-all">
+                                <option value="" selected>⏱️ Tanpa Durasi</option>
+                                <option value="1 jam">1 Jam</option>
+                                <option value="2 jam">2 Jam</option>
+                                <option value="3 jam">3 Jam</option>
+                                <option value="4 jam">4 Jam</option>
+                                <option value="5 jam">5 Jam</option>
+                                <option value="6 jam">6 Jam</option>
+                                <option value="7 jam">7 Jam</option>
+                                <option value="8 jam">8 Jam</option>
+                                <option value="9 jam">9 Jam</option>
+                                <option value="10 jam">10 Jam</option>
+                                <option value="11 jam">11 Jam</option>
+                                <option value="12 jam">12 Jam</option>
+                                <option value="13 jam">13 Jam</option>
+                                <option value="14 jam">14 Jam</option>
+                                <option value="15 jam">15 Jam</option>
+                                <option value="16 jam">16 Jam</option>
+                                <option value="17 jam">17 Jam</option>
+                                <option value="18 jam">18 Jam</option>
+                                <option value="19 jam">19 Jam</option>
+                                <option value="20 jam">20 Jam</option>
+                                <option value="21 jam">21 Jam</option>
+                                <option value="22 jam">22 Jam</option>
+                                <option value="23 jam">23 Jam</option>
+                                <option value="24 jam">24 Jam</option>
+                            </select>
                         </div>
                     </div>
 
@@ -558,6 +584,105 @@ function doPost(e) {
             renderTasks();
         }
 
+        // Smart Duration Parser: Converts formats like "1 jam 30m", "45", "1h" to milliseconds
+        function parseDurationToMs(str) {
+            if (!str) return 0;
+            const cleanStr = str.toLowerCase().replace(/,/g, '.');
+            let ms = 0;
+            
+            // Matches "1.5 jam", "2j", "2h", "2 hours"
+            const hourMatch = cleanStr.match(/(\d+(?:\.\d+)?)\s*(?:jam|j|hour|h)/);
+            // Matches "30 menit", "30m", "30 min"
+            const minMatch = cleanStr.match(/(\d+(?:\.\d+)?)\s*(?:menit|m|min)/);
+            
+            if (hourMatch) {
+                ms += parseFloat(hourMatch[1]) * 60 * 60 * 1000;
+            }
+            if (minMatch) {
+                ms += parseFloat(minMatch[1]) * 60 * 1000;
+            }
+            
+            // If it's just a raw number (e.g., "45")
+            if (!hourMatch && !minMatch && !isNaN(cleanStr)) {
+                ms += parseFloat(cleanStr) * 60 * 1000; // treat as minutes
+            }
+            
+            return ms;
+        }
+
+        // Real-Time Countdown Updates
+        function updateCountdowns() {
+            const countdownElements = document.querySelectorAll('[data-task-countdown-id]');
+            countdownElements.forEach(el => {
+                const taskId = el.getAttribute('data-task-countdown-id');
+                const task = tasks.find(t => t.id === taskId);
+                if (!task) return;
+                
+                if (task.completed) {
+                    el.innerHTML = `
+                        <span class="inline-flex items-center text-[11px] text-emerald-650 dark:text-emerald-450 font-semibold bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-900/40">
+                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Selesai
+                        </span>
+                    `;
+                    return;
+                }
+                
+                if (!task.durationMs) {
+                    el.innerHTML = `
+                        <span class="inline-flex items-center text-[11px] text-slate-400 dark:text-slate-500 font-semibold bg-slate-50 dark:bg-slate-900/40 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-800/40">
+                            Tanpa Durasi
+                        </span>
+                    `;
+                    return;
+                }
+                
+                const elapsed = Date.now() - task.createdAt;
+                const timeLeft = task.durationMs - elapsed;
+                
+                if (timeLeft > 0) {
+                    const totalSecs = Math.floor(timeLeft / 1000);
+                    const h = Math.floor(totalSecs / 3600);
+                    const m = Math.floor((totalSecs % 3600) / 60);
+                    const s = totalSecs % 60;
+                    
+                    const hStr = h > 0 ? `${h}j ` : '';
+                    const mStr = `${m}m `;
+                    const sStr = `${s}d`;
+                    
+                    el.innerHTML = `
+                        <span class="inline-flex items-center text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/20 px-2 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-900/40 animate-pulse">
+                            <svg class="w-3.5 h-3.5 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Sisa: ${hStr}${mStr}${sStr}
+                        </span>
+                    `;
+                } else {
+                    const overTime = Math.abs(timeLeft);
+                    const totalSecs = Math.floor(overTime / 1000);
+                    const h = Math.floor(totalSecs / 3600);
+                    const m = Math.floor((totalSecs % 3600) / 60);
+                    const s = totalSecs % 60;
+                    
+                    const hStr = h > 0 ? `${h}j ` : '';
+                    const mStr = `${m}m `;
+                    const sStr = `${s}d`;
+                    
+                    el.innerHTML = `
+                        <span class="inline-flex items-center text-[11px] text-rose-600 dark:text-rose-450 font-bold bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md border border-rose-100 dark:border-rose-900/40">
+                            <svg class="w-3.5 h-3.5 mr-1 text-rose-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            Melebihi Batas: +${hStr}${mStr}${sStr}
+                        </span>
+                    `;
+                }
+            });
+        }
+
         // Confetti Engine Setup
         const canvas = document.getElementById('confetti-canvas');
         const ctx = canvas.getContext('2d');
@@ -688,10 +813,37 @@ function doPost(e) {
             // Load Config & Tasks from LocalStorage
             loadConfigAndData();
             
-            // Check Reminders periodically (every 30 seconds)
-            setInterval(checkReminders, 30000);
+            // Check Reminders periodically (every 10 seconds)
+            setInterval(checkReminders, 10000);
             checkReminders();
+
+            // Fire real-time countdown clock ticks (every 1 second)
+            setInterval(updateCountdowns, 1000);
         };
+
+        // Standardize tasks arrays with safety properties (backward-compatible sync)
+        function sanitizeTasks() {
+            let changed = false;
+            tasks = tasks.map(task => {
+                if (!task.createdAt) {
+                    const parsedId = parseInt(task.id.replace('task_', ''));
+                    task.createdAt = isNaN(parsedId) ? Date.now() : parsedId;
+                    changed = true;
+                }
+                if (!task.durationMs && task.duration && task.duration !== 'Tidak ada') {
+                    task.durationMs = parseDurationToMs(task.duration);
+                    changed = true;
+                }
+                if (task.durationWarned === undefined) {
+                    task.durationWarned = false;
+                    changed = true;
+                }
+                return task;
+            });
+            if (changed) {
+                localStorage.setItem('prioritask_tasks', JSON.stringify(tasks));
+            }
+        }
 
         // Load configuration and cached tasks from Local Storage
         function loadConfigAndData() {
@@ -700,6 +852,7 @@ function doPost(e) {
             
             if (storedTasks) {
                 tasks = JSON.parse(storedTasks);
+                sanitizeTasks();
             } else {
                 tasks = [];
             }
@@ -745,6 +898,7 @@ function doPost(e) {
             // Process tags
             const tags = rawTags ? rawTags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
             const newId = 'task_' + Date.now();
+            const calculatedMs = parseDurationToMs(duration);
 
             const newTask = {
                 id: newId,
@@ -752,9 +906,12 @@ function doPost(e) {
                 priority: priority,
                 tags: tags,
                 duration: duration || 'Tidak ada',
+                durationMs: calculatedMs,
+                createdAt: Date.now(),
                 reminder: reminder || '',
                 completed: false,
-                notified: false // flag so user is notified only once
+                notified: false, // target pengerjaan alert flag
+                durationWarned: false // overtime alert flag
             };
 
             // Sound feedback
@@ -969,15 +1126,14 @@ function doPost(e) {
                                         ${style.badge}
                                     </span>
 
-                                    <!-- Duration Details -->
-                                    <span class="inline-flex items-center text-[11px] text-slate-400 dark:text-slate-500 font-semibold">
-                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        Durasi: ${task.duration}
-                                    </span>
+                                    <!-- REAL-TIME DURATION COUNTDOWN TIMER CONTAINER -->
+                                    <div data-task-countdown-id="${task.id}" class="inline-flex items-center">
+                                        <span class="inline-flex items-center text-[11px] text-slate-400 dark:text-slate-500 font-semibold bg-slate-50 dark:bg-slate-900/40 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-800/40">
+                                            Menghitung...
+                                        </span>
+                                    </div>
 
-                                    <!-- Reminder -->
+                                    <!-- Target Pengerjaan (Reminder) -->
                                     ${reminderHtml}
                                 </div>
 
@@ -997,6 +1153,9 @@ function doPost(e) {
                     </div>
                 `;
             }).join('');
+
+            // Fire immediate countdown clock ticks to bind formatted timer states right after render
+            updateCountdowns();
         }
 
         // Save local state and trigger dynamic background sync
@@ -1010,19 +1169,29 @@ function doPost(e) {
             }
         }
 
-        // Periodic Target time check
+        // Periodic alarm triggers for countdown limits and targets
         function checkReminders() {
             const now = new Date();
             let hasChanges = false;
 
             tasks = tasks.map(task => {
+                // 1. Check for Target Date Warnings (datetime-local reminder)
                 if (task.reminder && !task.completed && !task.notified) {
                     const remDate = new Date(task.reminder);
-                    // Trigger alert if target time is reached or passed
                     if (now >= remDate) {
                         showTaskAlert(task);
                         hasChanges = true;
                         return { ...task, notified: true };
+                    }
+                }
+
+                // 2. Check for Overtime Duration Warning (countdown overflow)
+                if (task.durationMs && !task.completed && !task.durationWarned) {
+                    const elapsed = Date.now() - task.createdAt;
+                    if (elapsed >= task.durationMs) {
+                        showDurationWarningAlert(task);
+                        hasChanges = true;
+                        return { ...task, durationWarned: true };
                     }
                 }
                 return task;
@@ -1033,11 +1202,18 @@ function doPost(e) {
             }
         }
 
-        // Custom task notification alert element
+        // Warning alerts trigger
         function showTaskAlert(task) {
             showToast(`⚠️ TARGET: Tugas "${task.title}" telah melewati target waktu pengerjaan!`, "warning", 8000);
-            
-            // Native system audio beep generator using AudioContext
+            triggerWarningSound();
+        }
+
+        function showDurationWarningAlert(task) {
+            showToast(`🚨 MELEBIHI DURASI: Tugas "${task.title}" telah melewati estimasi durasi pengerjaan!`, "error", 8000);
+            triggerWarningSound();
+        }
+
+        function triggerWarningSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioCtx.createOscillator();
@@ -1053,7 +1229,7 @@ function doPost(e) {
                 oscillator.start();
                 oscillator.stop(audioCtx.currentTime + 0.4);
             } catch(e) {
-                // AudioContext not allowed or not supported, ignore
+                // AudioContext blocked
             }
         }
 
@@ -1096,7 +1272,7 @@ function doPost(e) {
 
             // Hold 3 seconds before restoring the clean status
             setTimeout(() => {
-                btn.className = "group relative flex items-center justify-center w-11 h-11 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50/50 transition-all duration-300 premium-btn";
+                btn.className = "group relative flex items-center justify-center w-11 h-11 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-slate-700 hover:shadow-xl hover:shadow-indigo-50/50 dark:hover:shadow-none transition-all duration-300 premium-btn";
                 
                 if (pulseRing) {
                     pulseRing.className = "absolute inset-0 rounded-full bg-indigo-500/10 scale-125 breathing-ring pointer-events-none transition-all duration-500";
@@ -1167,6 +1343,7 @@ function doPost(e) {
                     if (result && result.status === "success" && Array.isArray(result.data)) {
                         if (result.data.length > 0) {
                             tasks = result.data;
+                            sanitizeTasks();
                             localStorage.setItem('prioritask_tasks', JSON.stringify(tasks));
                             showToast("Berhasil menarik data terbaru dari Google Sheets!", "success");
                             triggerSyncSuccessAnimation();
@@ -1221,7 +1398,7 @@ function doPost(e) {
                         iconWrapper.classList.add('cloud-floating');
                         iconWrapper.innerHTML = `
                             <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78(2.096A4.001 4.001 0 003 15z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 14l2-2 2 2m-2-2v4" class="animate-bounce" />
                             </svg>
                         `;
