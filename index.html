@@ -1,11 +1,23 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-50">
+<html lang="id" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prioritask - Premium To-Do List & Spreadsheet Sync</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Google Fonts: Plus Jakarta Sans for premium modern look -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -24,8 +36,14 @@
             background: #cbd5e1;
             border-radius: 10px;
         }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
         }
 
         /* Ambient breathing pulse for the new sync button */
@@ -45,6 +63,11 @@
         }
         .sync-loading-shimmer {
             background: linear-gradient(90deg, #f8fafc 25%, #e0e7ff 50%, #f8fafc 75%);
+            background-size: 200% 100%;
+            animation: syncShimmer 1.5s infinite linear;
+        }
+        .dark .sync-loading-shimmer {
+            background: linear-gradient(90deg, #0f172a 25%, #1e1b4b 50%, #0f172a 75%);
             background-size: 200% 100%;
             animation: syncShimmer 1.5s infinite linear;
         }
@@ -120,17 +143,25 @@
             z-index: 9999;
         }
     </style>
+    <script>
+        if (localStorage.getItem('prioritask_theme') === 'dark' || 
+            (!('prioritask_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
-<body class="h-full text-slate-800 flex flex-col antialiased relative">
+<body class="h-full text-slate-800 dark:text-slate-100 flex flex-col antialiased relative bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
 
     <!-- Confetti Canvas Overlay -->
     <canvas id="confetti-canvas"></canvas>
 
     <!-- HEADER / NAVIGATION -->
-    <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40">
+    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 sticky top-0 z-40 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-100">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-100 dark:shadow-none">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
@@ -141,19 +172,33 @@
                 </div>
             </div>
 
-            <!-- Sync Connection Badge & Actions -->
+            <!-- Theme Switcher, Sync Connection Badge & Actions -->
             <div class="flex items-center space-x-3">
-                <button onclick="openConfigModal()" id="db-status-btn" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300 bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 premium-btn">
+                <button onclick="openConfigModal()" id="db-status-btn" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/80 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-950/60 premium-btn">
                     <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" id="status-pulse"></span>
                     <span id="status-text">Mode Lokal (Klik untuk Hubungkan Sheets)</span>
+                </button>
+
+                <!-- THEME SWITCHER BUTTON -->
+                <button onclick="toggleTheme()" id="theme-toggle-btn" class="flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-100 dark:hover:border-slate-700 hover:shadow-lg hover:shadow-indigo-50 dark:hover:shadow-none transition-all duration-300 premium-btn" title="Ganti Mode Tampilan">
+                    <span id="theme-icon-wrapper" class="relative z-10 flex items-center justify-center">
+                        <!-- Moon Icon (Default Light State) -->
+                        <svg id="moon-icon" class="w-5 h-5 hidden dark:block text-amber-400 transition-transform duration-300 hover:rotate-12" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 12.05a1 1 0 10-1.414 1.414l.707.707a1 1 0 001.414-1.414l-.707-.707zm1.414-8.486a1 1 0 00-1.414 0l-.707.707a1 1 0 001.414 1.414l.707-.707a1 1 0 000-1.414zM8 11a1 1 0 100-2H7a1 1 0 100 2h1z" />
+                        </svg>
+                        <!-- Sun Icon (Default Dark State) -->
+                        <svg id="sun-icon" class="w-5 h-5 block dark:hidden text-slate-500 transition-transform duration-300 hover:rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </span>
                 </button>
                 
                 <!-- FUTURISTIC DUAL-RING SYNC NOW BUTTON WITH AMBIENT GLOW -->
                 <div class="relative hidden shrink-0" id="sync-btn-container">
                     <!-- Outer Breathing Pulse Ring -->
-                    <span id="sync-pulse-ring" class="absolute inset-0 rounded-full bg-indigo-500/10 scale-125 breathing-ring pointer-events-none transition-all duration-500"></span>
+                    <span id="sync-pulse-ring" class="absolute inset-0 rounded-full bg-indigo-500/10 dark:bg-indigo-400/5 scale-125 breathing-ring pointer-events-none transition-all duration-500"></span>
                     
-                    <button onclick="triggerSync()" id="sync-now-btn" class="group relative flex items-center justify-center w-11 h-11 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50/50 transition-all duration-300 premium-btn" title="Sinkronkan Sekarang">
+                    <button onclick="triggerSync()" id="sync-now-btn" class="group relative flex items-center justify-center w-11 h-11 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-slate-700 hover:shadow-xl hover:shadow-indigo-50/50 dark:hover:shadow-none transition-all duration-300 premium-btn" title="Sinkronkan Sekarang">
                         <span id="sync-icon-wrapper" class="relative z-10 flex items-center justify-center transition-all duration-300">
                             <!-- Cloud + Sync Circle Custom SVG -->
                             <svg id="sync-icon-svg" class="w-5 h-5 transition-all duration-500 group-hover:scale-105" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,7 +221,7 @@
         <div class="w-full lg:w-[420px] flex flex-col gap-6 shrink-0">
             
             <!-- Welcome Card -->
-            <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div class="bg-gradient-to-br from-slate-900 to-indigo-950 dark:from-slate-900 dark:to-indigo-950/40 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden border border-slate-100/10">
                 <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
                 <div class="relative z-10">
                     <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">Selamat Datang</span>
@@ -189,7 +234,7 @@
                             <span class="text-indigo-300">Tingkat Penyelesaian</span>
                             <span id="completion-ratio">0%</span>
                         </div>
-                        <div class="w-full bg-slate-800 rounded-full h-2">
+                        <div class="w-full bg-slate-800 dark:bg-slate-950/40 rounded-full h-2">
                             <div id="completion-progress-bar" class="bg-gradient-to-r from-emerald-400 to-teal-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
                         </div>
                     </div>
@@ -198,20 +243,20 @@
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col hover:border-slate-200 transition-all duration-200">
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-200">
                     <span class="text-xs text-slate-400 font-semibold uppercase">Tugas Aktif</span>
-                    <span class="text-2xl font-bold text-indigo-600 mt-1" id="active-count">0</span>
+                    <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1" id="active-count">0</span>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col hover:border-slate-200 transition-all duration-200">
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-200">
                     <span class="text-xs text-slate-400 font-semibold uppercase">Selesai</span>
-                    <span class="text-2xl font-bold text-emerald-600 mt-1" id="completed-count">0</span>
+                    <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1" id="completed-count">0</span>
                 </div>
             </div>
 
             <!-- Form Tambah Tugas Baru -->
-            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col gap-4">
-                <h3 class="text-base font-bold text-slate-800 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-4 transition-colors duration-300">
+                <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Tambah Tugas Baru
@@ -220,13 +265,13 @@
                 <form id="task-form" onsubmit="handleAddTask(event)" class="space-y-4">
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-slate-400">Judul Tugas</label>
-                        <input type="text" id="task-title" required placeholder="Apa yang ingin dikerjakan?" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition-all">
+                        <input type="text" id="task-title" required placeholder="Apa yang ingin dikerjakan?" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-800 dark:text-slate-100 transition-all">
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-slate-400">Prioritas</label>
-                            <select id="task-priority" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold text-slate-600 bg-white transition-all">
+                            <select id="task-priority" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-950 transition-all">
                                 <option value="low">🟢 Rendah</option>
                                 <option value="medium" selected>🟡 Sedang</option>
                                 <option value="high">🔴 Tinggi</option>
@@ -234,21 +279,21 @@
                         </div>
                         <div class="space-y-1">
                             <label class="text-xs font-bold text-slate-400">Estimasi Durasi</label>
-                            <input type="text" id="task-duration" placeholder="Contoh: 2 jam" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition-all">
+                            <input type="text" id="task-duration" placeholder="Contoh: 2 jam" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-800 dark:text-slate-100 transition-all">
                         </div>
                     </div>
 
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-slate-400">Tag / Kategori (Pisahkan dengan koma)</label>
-                        <input type="text" id="task-tags" placeholder="Kerja, Belajar, Belanja" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition-all">
+                        <input type="text" id="task-tags" placeholder="Kerja, Belajar, Belanja" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-800 dark:text-slate-100 transition-all">
                     </div>
 
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-slate-400">Target Waktu Pengerjaan</label>
-                        <input type="datetime-local" id="task-reminder" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-600 bg-white transition-all">
+                        <input type="datetime-local" id="task-reminder" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-600 dark:text-slate-300 transition-all">
                     </div>
 
-                    <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold rounded-xl text-sm shadow-md shadow-indigo-100 hover:shadow-lg transition-all duration-200 flex items-center justify-center premium-btn">
+                    <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold rounded-xl text-sm shadow-md shadow-indigo-100 dark:shadow-none hover:shadow-lg transition-all duration-200 flex items-center justify-center premium-btn">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -258,32 +303,32 @@
             </div>
 
             <!-- Quick Filters -->
-            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm transition-colors duration-300">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Filter Prioritas</h3>
                 <div class="space-y-2">
-                    <button onclick="setFilter('all')" id="filter-all" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center bg-indigo-50 text-indigo-700 transition-all duration-200 premium-btn">
+                    <button onclick="setFilter('all')" id="filter-all" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 transition-all duration-200 premium-btn">
                         <span>Semua Tugas</span>
-                        <span class="bg-indigo-200/50 text-indigo-800 text-xs px-2 py-0.5 rounded-full" id="filter-badge-all">0</span>
+                        <span class="bg-indigo-200/50 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300 text-xs px-2 py-0.5 rounded-full" id="filter-badge-all">0</span>
                     </button>
-                    <button onclick="setFilter('high')" id="filter-high" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center text-slate-600 hover:bg-slate-50 transition-all duration-200 premium-btn">
+                    <button onclick="setFilter('high')" id="filter-high" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 premium-btn">
                         <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-2.5"></span>Tinggi</span>
-                        <span class="bg-rose-100 text-rose-800 text-xs px-2 py-0.5 rounded-full" id="filter-badge-high">0</span>
+                        <span class="bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-400 text-xs px-2 py-0.5 rounded-full" id="filter-badge-high">0</span>
                     </button>
-                    <button onclick="setFilter('medium')" id="filter-medium" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center text-slate-600 hover:bg-slate-50 transition-all duration-200 premium-btn">
+                    <button onclick="setFilter('medium')" id="filter-medium" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 premium-btn">
                         <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 mr-2.5"></span>Sedang</span>
-                        <span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full" id="filter-badge-medium">0</span>
+                        <span class="bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400 text-xs px-2 py-0.5 rounded-full" id="filter-badge-medium">0</span>
                     </button>
-                    <button onclick="setFilter('low')" id="filter-low" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center text-slate-600 hover:bg-slate-50 transition-all duration-200 premium-btn">
+                    <button onclick="setFilter('low')" id="filter-low" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 premium-btn">
                         <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2.5"></span>Rendah</span>
-                        <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full" id="filter-badge-low">0</span>
+                        <span class="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400 text-xs px-2 py-0.5 rounded-full" id="filter-badge-low">0</span>
                     </button>
                 </div>
             </div>
 
             <!-- App Info Card -->
-            <div class="bg-slate-100 rounded-xl p-4 border border-slate-200/60 text-center">
-                <span class="text-xs text-slate-500 block">Butuh bantuan menghubungkan Spreadsheet?</span>
-                <button onclick="openConfigModal()" class="text-xs text-indigo-600 font-bold mt-1.5 inline-block hover:underline focus:outline-none">Lihat Panduan Integrasi</button>
+            <div class="bg-slate-100 dark:bg-slate-800/30 rounded-xl p-4 border border-slate-200/60 dark:border-slate-800 text-center transition-colors duration-300">
+                <span class="text-xs text-slate-500 dark:text-slate-400 block">Butuh bantuan menghubungkan Spreadsheet?</span>
+                <button onclick="openConfigModal()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold mt-1.5 inline-block hover:underline focus:outline-none">Lihat Panduan Integrasi</button>
             </div>
 
         </div>
@@ -292,14 +337,14 @@
         <div class="flex-1 flex flex-col gap-6">
             
             <!-- Search & Actions Topbar (CLEANED) -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 transition-colors duration-300">
                 <div class="relative w-full">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </span>
-                    <input type="text" id="search-input" oninput="renderTasks()" placeholder="Cari tugas atau tag..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
+                    <input type="text" id="search-input" oninput="renderTasks()" placeholder="Cari tugas atau tag..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
                 </div>
             </div>
 
@@ -312,14 +357,14 @@
                 <!-- Tasks list container -->
                 <div id="tasks-container" class="space-y-3 flex-1">
                     <!-- Dynamic rendering in JS -->
-                    <div class="flex flex-col items-center justify-center py-16 text-center bg-white rounded-2xl border border-dashed border-slate-200">
-                        <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 text-slate-300 animate-pulse">
+                    <div class="flex flex-col items-center justify-center py-16 text-center bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 transition-colors duration-300">
+                        <div class="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-950 flex items-center justify-center mb-4 text-slate-300 animate-pulse">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
                         </div>
-                        <h4 class="text-sm font-bold text-slate-600">Belum ada tugas apapun</h4>
-                        <p class="text-xs text-slate-400 mt-1 max-w-xs">Buat tugas pertamamu menggunakan form di kolom sebelah kiri untuk memulai hari yang produktif.</p>
+                        <h4 class="text-sm font-bold text-slate-600 dark:text-slate-400">Belum ada tugas apapun</h4>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xs">Buat tugas pertamamu menggunakan form di kolom sebelah kiri untuk memulai hari yang produktif.</p>
                     </div>
                 </div>
             </div>
@@ -332,21 +377,21 @@
     <div id="config-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <!-- Background overlay -->
-            <div onclick="closeConfigModal()" class="fixed inset-0 bg-slate-900/60 transition-opacity backdrop-blur-sm" aria-hidden="true"></div>
+            <div onclick="closeConfigModal()" class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 transition-opacity backdrop-blur-sm" aria-hidden="true"></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-                <div class="bg-white px-6 pt-6 pb-4 sm:p-8 sm:pb-4">
-                    <div class="flex justify-between items-center pb-4 border-b border-slate-100">
-                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
-                            <svg class="w-5 h-5 mr-2.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="inline-block align-bottom bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <div class="bg-white dark:bg-slate-900 px-6 pt-6 pb-4 sm:p-8 sm:pb-4 transition-colors duration-300">
+                    <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center">
+                            <svg class="w-5 h-5 mr-2.5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             Integrasi Google Spreadsheet
                         </h3>
-                        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -354,20 +399,20 @@
                     </div>
 
                     <div class="mt-4 space-y-4">
-                        <p class="text-xs text-slate-500 leading-relaxed">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             Hubungkan aplikasi ini dengan Google Spreadsheet Anda secara real-time. Semua tugas akan tersimpan dan tersinkronisasi di cloud milik Anda sendiri.
                         </p>
 
                         <!-- URL Inputs -->
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-600 block">Google Apps Script Web App URL</label>
-                            <input type="url" id="sheet-app-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
+                            <label class="text-xs font-bold text-slate-600 dark:text-slate-400 block">Google Apps Script Web App URL</label>
+                            <input type="url" id="sheet-app-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
                         </div>
 
                         <!-- Guide Toggle -->
-                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                            <h4 class="text-xs font-bold text-indigo-700 mb-2">Panduan Pengaturan Mudah (Hanya 3 Menit):</h4>
-                            <ol class="text-xs text-slate-600 list-decimal pl-4 space-y-1.5 leading-relaxed">
+                        <div class="bg-slate-50 dark:bg-slate-950 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
+                            <h4 class="text-xs font-bold text-indigo-700 dark:text-indigo-400 mb-2">Panduan Pengaturan Mudah (Hanya 3 Menit):</h4>
+                            <ol class="text-xs text-slate-600 dark:text-slate-400 list-decimal pl-4 space-y-1.5 leading-relaxed">
                                 <li>Buat Google Spreadsheet baru di Google Drive Anda.</li>
                                 <li>Pilih menu <strong>Ekstensi &gt; Apps Script</strong>.</li>
                                 <li>Hapus semua kode bawaan, lalu salin dan tempel kode di bawah ini.</li>
@@ -381,15 +426,15 @@
                         <!-- Code block copy area -->
                         <div class="space-y-1">
                             <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kode Google Apps Script:</span>
-                                <button onclick="copyAppsScriptCode()" class="text-xs text-indigo-600 font-bold hover:underline focus:outline-none flex items-center premium-btn">
+                                <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Kode Google Apps Script:</span>
+                                <button onclick="copyAppsScriptCode()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline focus:outline-none flex items-center premium-btn">
                                     <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                                     </svg>
                                     Salin Kode
                                 </button>
                             </div>
-                            <pre class="bg-slate-900 text-slate-300 text-[11px] p-3 rounded-xl overflow-x-auto max-h-40 font-mono cursor-pointer" id="script-code-block" onclick="selectText('script-code-block')" title="Klik untuk menyorot manual">
+                            <pre class="bg-slate-900 text-slate-300 text-[11px] p-3 rounded-xl overflow-x-auto max-h-40 font-mono cursor-pointer border border-slate-800" id="script-code-block" onclick="selectText('script-code-block')" title="Klik untuk menyorot manual">
 function doGet() {
   return HtmlService.createHtmlOutput("Ready");
 }
@@ -454,14 +499,14 @@ function doPost(e) {
 
                     </div>
                 </div>
-                <div class="bg-slate-50 px-6 py-4 sm:px-8 sm:flex sm:flex-row-reverse gap-2">
-                    <button type="button" onclick="saveConfig()" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-sm font-bold text-white hover:bg-indigo-700 sm:w-auto">
+                <div class="bg-slate-50 dark:bg-slate-950 px-6 py-4 sm:px-8 sm:flex sm:flex-row-reverse gap-2 border-t border-slate-100 dark:border-slate-850">
+                    <button type="button" onclick="saveConfig()" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-sm font-bold text-white sm:w-auto">
                         Simpan Pengaturan
                     </button>
-                    <button type="button" onclick="disconnectSheet()" id="btn-disconnect" class="w-full inline-flex justify-center rounded-xl border border-slate-200 shadow-sm px-4 py-2 bg-white text-sm font-bold text-rose-600 hover:bg-rose-50 sm:w-auto hidden">
+                    <button type="button" onclick="disconnectSheet()" id="btn-disconnect" class="w-full inline-flex justify-center rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-4 py-2 bg-white dark:bg-slate-900 text-sm font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 sm:w-auto hidden">
                         Putuskan Koneksi
                     </button>
-                    <button type="button" onclick="closeConfigModal()" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-200 shadow-sm px-4 py-2 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:mt-0 sm:w-auto">
+                    <button type="button" onclick="closeConfigModal()" class="mt-3 w-full inline-flex justify-center rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-4 py-2 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 sm:mt-0 sm:w-auto">
                         Batal
                     </button>
                 </div>
@@ -473,7 +518,7 @@ function doPost(e) {
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full"></div>
 
     <!-- FOOTER -->
-    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs text-slate-400 font-medium">
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-850 py-6 text-center text-xs text-slate-400 dark:text-slate-500 font-medium transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4">
             Prioritask Premium To-Do List &copy; 2026. Dioptimalkan untuk produktivitas mandiri & sinkronisasi Google Sheet.
         </div>
@@ -498,6 +543,20 @@ function doPost(e) {
         const syncNowBtn = document.getElementById('sync-now-btn');
         const syncBtnContainer = document.getElementById('sync-btn-container');
         const syncPulseRing = document.getElementById('sync-pulse-ring');
+
+        // Theme Toggle Logic
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('prioritask_theme', 'light');
+                showToast("Mode Terang Aktif ☀️", "info");
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('prioritask_theme', 'dark');
+                showToast("Mode Gelap Aktif 🌙", "info");
+            }
+            renderTasks();
+        }
 
         // Confetti Engine Setup
         const canvas = document.getElementById('confetti-canvas');
@@ -661,13 +720,13 @@ function doPost(e) {
             if (isConnected) {
                 statusPulse.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
                 statusText.innerText = "Terhubung dengan Sheets";
-                dbStatusBtn.className = "flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300 bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 premium-btn";
+                dbStatusBtn.className = "flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300 bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-slate-800 premium-btn";
                 btnDisconnect.classList.remove('hidden');
                 syncBtnContainer.classList.remove('hidden');
             } else {
                 statusPulse.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
                 statusText.innerText = "Mode Lokal (Klik untuk Hubungkan Sheets)";
-                dbStatusBtn.className = "flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300 bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 premium-btn";
+                dbStatusBtn.className = "flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300 bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-slate-800 premium-btn";
                 btnDisconnect.classList.add('hidden');
                 syncBtnContainer.classList.add('hidden');
             }
@@ -766,9 +825,9 @@ function doPost(e) {
             filters.forEach(f => {
                 const btn = document.getElementById(`filter-${f}`);
                 if (f === filter) {
-                    btn.className = "w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center bg-indigo-50 text-indigo-700 transition-all duration-200 premium-btn";
+                    btn.className = "w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 transition-all duration-200 premium-btn";
                 } else {
-                    btn.className = "w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center text-slate-600 hover:bg-slate-50 transition-all duration-200 premium-btn";
+                    btn.className = "w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold flex justify-between items-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 premium-btn";
                 }
             });
 
@@ -824,8 +883,8 @@ function doPost(e) {
             // If empty
             if (filtered.length === 0) {
                 tasksContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-16 text-center bg-white rounded-2xl border border-dashed border-slate-200">
-                        <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-3 text-slate-300">
+                    <div class="flex flex-col items-center justify-center py-16 text-center bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 transition-colors duration-300">
+                        <div class="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-950 flex items-center justify-center mb-3 text-slate-300">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
@@ -840,16 +899,16 @@ function doPost(e) {
             // Render elements
             tasksContainer.innerHTML = filtered.map(task => {
                 const priorityStyles = {
-                    high: { bg: 'bg-rose-50', border: 'border-rose-100', text: 'text-rose-700', badge: '🔴 Tinggi' },
-                    medium: { bg: 'bg-amber-50', border: 'border-amber-100', text: 'text-amber-700', badge: '🟡 Sedang' },
-                    low: { bg: 'bg-emerald-50', border: 'border-emerald-100', text: 'text-emerald-700', badge: '🟢 Rendah' }
+                    high: { bg: 'bg-rose-50 dark:bg-rose-950/20', border: 'border-rose-100 dark:border-rose-900/60', text: 'text-rose-700 dark:text-rose-400', badge: '🔴 Tinggi' },
+                    medium: { bg: 'bg-amber-50 dark:bg-amber-950/20', border: 'border-amber-100 dark:border-amber-900/60', text: 'text-amber-700 dark:text-amber-400', badge: '🟡 Sedang' },
+                    low: { bg: 'bg-emerald-50 dark:bg-emerald-950/20', border: 'border-emerald-100 dark:border-emerald-900/60', text: 'text-emerald-700 dark:text-emerald-400', badge: '🟢 Rendah' }
                 };
                 
                 const style = priorityStyles[task.priority] || priorityStyles.medium;
 
                 // Tags rendering
                 const tagsHtml = task.tags.map(tag => `
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-750">
                         #${tag}
                     </span>
                 `).join(' ');
@@ -867,7 +926,7 @@ function doPost(e) {
                     
                     const isUpcoming = remDate > new Date();
                     reminderHtml = `
-                        <div class="flex items-center text-[11px] font-medium ${isUpcoming ? 'text-indigo-600' : 'text-rose-600'}" title="Target Pengerjaan">
+                        <div class="flex items-center text-[11px] font-medium ${isUpcoming ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'}" title="Target Pengerjaan">
                             <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
@@ -884,7 +943,7 @@ function doPost(e) {
                 }
 
                 return `
-                    <div id="task-card-${task.id}" class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200/80 transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${task.completed ? 'opacity-65' : ''} ${animationClass}">
+                    <div id="task-card-${task.id}" class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800/80 shadow-sm hover:shadow-md hover:border-slate-200/80 dark:hover:border-slate-700 transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${task.completed ? 'opacity-65' : ''} ${animationClass}">
                         <div class="flex items-start gap-4 flex-1">
                             
                             <!-- Custom Checkbox -->
@@ -896,13 +955,13 @@ function doPost(e) {
                                         </svg>
                                     </div>
                                 ` : `
-                                    <div class="w-6 h-6 rounded-lg border-2 border-slate-200 hover:border-indigo-500 flex items-center justify-center bg-white transition-all duration-200 hover:scale-105"></div>
+                                    <div class="w-6 h-6 rounded-lg border-2 border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-400 flex items-center justify-center bg-white dark:bg-slate-950 transition-all duration-200 hover:scale-105"></div>
                                 `}
                             </button>
 
                             <!-- Task Details -->
                             <div class="space-y-1.5 flex-1">
-                                <h4 class="text-sm font-bold ${task.completed ? 'line-through text-slate-400' : 'text-slate-800'} transition-all">${task.title}</h4>
+                                <h4 class="text-sm font-bold ${task.completed ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'} transition-all">${task.title}</h4>
                                 
                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
                                     <!-- Priority Indicator -->
@@ -911,7 +970,7 @@ function doPost(e) {
                                     </span>
 
                                     <!-- Duration Details -->
-                                    <span class="inline-flex items-center text-[11px] text-slate-400 font-semibold">
+                                    <span class="inline-flex items-center text-[11px] text-slate-400 dark:text-slate-500 font-semibold">
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
@@ -929,7 +988,7 @@ function doPost(e) {
 
                         <!-- Action Buttons -->
                         <div class="flex items-center space-x-2 self-end sm:self-center">
-                            <button onclick="deleteTask('${task.id}')" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all premium-btn" title="Hapus Tugas">
+                            <button onclick="deleteTask('${task.id}')" class="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl transition-all premium-btn" title="Hapus Tugas">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
@@ -1037,7 +1096,7 @@ function doPost(e) {
 
             // Hold 3 seconds before restoring the clean status
             setTimeout(() => {
-                btn.className = "group relative flex items-center justify-center w-11 h-11 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50/50 transition-all duration-300 premium-btn";
+                btn.className = "group relative flex items-center justify-center w-11 h-11 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50/50 transition-all duration-300 premium-btn";
                 
                 if (pulseRing) {
                     pulseRing.className = "absolute inset-0 rounded-full bg-indigo-500/10 scale-125 breathing-ring pointer-events-none transition-all duration-500";
@@ -1152,7 +1211,7 @@ function doPost(e) {
             if (isSyncing) {
                 if (btn && !isCurrentlySuccessful) {
                     // Activate elegant purple shimmer wave across the button and spin/float the icon
-                    btn.className = "group relative flex items-center justify-center w-11 h-11 rounded-full border border-indigo-200 text-indigo-600 shadow-md pointer-events-none opacity-90 sync-loading-shimmer premium-btn";
+                    btn.className = "group relative flex items-center justify-center w-11 h-11 rounded-full border border-indigo-200 dark:border-indigo-900 text-indigo-600 dark:text-indigo-400 shadow-md pointer-events-none opacity-90 sync-loading-shimmer premium-btn";
                     
                     if (pulseRing) {
                         pulseRing.className = "absolute inset-0 rounded-full bg-indigo-500/20 scale-125 animate-ping pointer-events-none";
@@ -1161,7 +1220,7 @@ function doPost(e) {
                     if (iconWrapper) {
                         iconWrapper.classList.add('cloud-floating');
                         iconWrapper.innerHTML = `
-                            <svg class="w-5 h-5 text-indigo-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 14l2-2 2 2m-2-2v4" class="animate-bounce" />
                             </svg>
@@ -1171,7 +1230,7 @@ function doPost(e) {
             } else {
                 if (!isCurrentlySuccessful) {
                     if (btn) {
-                        btn.className = "group relative flex items-center justify-center w-11 h-11 rounded-full border border-slate-200 bg-white text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50/50 transition-all duration-300 premium-btn";
+                        btn.className = "group relative flex items-center justify-center w-11 h-11 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-slate-700 hover:shadow-xl hover:shadow-indigo-50/50 dark:hover:shadow-none transition-all duration-300 premium-btn";
                     }
                     if (pulseRing) {
                         pulseRing.className = "absolute inset-0 rounded-full bg-indigo-500/10 scale-125 breathing-ring pointer-events-none transition-all duration-500";
@@ -1310,7 +1369,6 @@ function doPost(e) {
 
 
         /* TOAST SYSTEM (PREMIUM UI ALERTS) */
-
         function showToast(message, type = "success", duration = 4000) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -1337,7 +1395,7 @@ function doPost(e) {
             const chosen = types[type] || types.success;
 
             // Updated grid/flex arrangement to reserve clean space for the dismiss X button
-            toast.className = `flex items-center justify-between gap-3 p-4 bg-slate-900 text-white rounded-2xl shadow-xl transform translate-y-2 opacity-0 transition-all duration-300 border border-slate-800`;
+            toast.className = `flex items-center justify-between gap-3 p-4 bg-slate-900 dark:bg-slate-950 text-white dark:text-slate-100 rounded-2xl shadow-xl transform translate-y-2 opacity-0 transition-all duration-300 border border-slate-800 dark:border-slate-800`;
             toast.innerHTML = `
                 <div class="flex items-center gap-3 flex-1 min-w-0">
                     <div class="w-6 h-6 rounded-lg ${chosen.bg} flex items-center justify-center shrink-0">
