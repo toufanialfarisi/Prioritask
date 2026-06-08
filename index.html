@@ -382,14 +382,14 @@
                         <div class="space-y-1">
                             <div class="flex justify-between items-center">
                                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kode Google Apps Script:</span>
-                                <button onclick="copyAppsScriptCode()" class="text-xs text-indigo-600 font-bold hover:underline focus:outline-none flex items-center">
+                                <button onclick="copyAppsScriptCode()" class="text-xs text-indigo-600 font-bold hover:underline focus:outline-none flex items-center premium-btn">
                                     <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                                     </svg>
                                     Salin Kode
                                 </button>
                             </div>
-                            <pre class="bg-slate-900 text-slate-300 text-[11px] p-3 rounded-xl overflow-x-auto max-h-40 font-mono" id="script-code-block">
+                            <pre class="bg-slate-900 text-slate-300 text-[11px] p-3 rounded-xl overflow-x-auto max-h-40 font-mono cursor-pointer" id="script-code-block" onclick="selectText('script-code-block')" title="Klik untuk menyorot manual">
 function doGet() {
   return HtmlService.createHtmlOutput("Ready");
 }
@@ -1236,19 +1236,74 @@ function doPost(e) {
             renderTasks();
         }
 
+        // Programmatic selection helper to bypass sandbox copy block
+        function selectText(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            
+            if (document.body.createTextRange) {
+                const range = document.body.createTextRange();
+                range.moveToElementText(el);
+                range.select();
+            } else if (window.getSelection) {
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(el);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+
+        // Ultra-robust clipboard script with visual feedback & multi-layered fallback
         function copyAppsScriptCode() {
             const codeText = document.getElementById('script-code-block').innerText;
             
-            // Premium fallback selection & copy for iFrame constraints
+            // Layer 1: Off-screen textarea clone with specific design overrides
             const textarea = document.createElement("textarea");
             textarea.value = codeText;
+            textarea.style.top = "0";
+            textarea.style.left = "0";
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            textarea.style.width = "2em";
+            textarea.style.height = "2em";
+            textarea.style.padding = "0";
+            textarea.style.border = "none";
+            textarea.style.outline = "none";
+            textarea.style.boxShadow = "none";
+            textarea.style.background = "transparent";
+            
             document.body.appendChild(textarea);
+            textarea.focus();
             textarea.select();
+            textarea.setSelectionRange(0, 99999); // Mobile selection compatibility
+            
+            let successful = false;
             try {
-                document.execCommand('copy');
-                showToast("Kode berhasil disalin ke clipboard!", "success");
+                successful = document.execCommand('copy');
             } catch (err) {
-                showToast("Gagal menyalin kode. Silakan salin manual.", "error");
+                successful = false;
+            }
+            
+            if (successful) {
+                showToast("Kode berhasil disalin ke clipboard!", "success");
+            } else {
+                // Layer 2: Modern Clipboard API
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(codeText)
+                        .then(() => {
+                            showToast("Kode berhasil disalin ke clipboard!", "success");
+                        })
+                        .catch(() => {
+                            // Layer 3: Selection Fallback (Instruct user to press Ctrl+C)
+                            selectText('script-code-block');
+                            showToast("Salin otomatis diblokir browser. Silakan tekan Ctrl+C sekarang!", "warning", 6500);
+                        });
+                } else {
+                    // Layer 3: Selection Fallback directly
+                    selectText('script-code-block');
+                    showToast("Salin otomatis diblokir browser. Silakan tekan Ctrl+C sekarang!", "warning", 6500);
+                }
             }
             document.body.removeChild(textarea);
         }
@@ -1281,12 +1336,20 @@ function doPost(e) {
 
             const chosen = types[type] || types.success;
 
-            toast.className = `flex items-center gap-3 p-4 bg-slate-900 text-white rounded-2xl shadow-xl transform translate-y-2 opacity-0 transition-all duration-300 border border-slate-800`;
+            // Updated grid/flex arrangement to reserve clean space for the dismiss X button
+            toast.className = `flex items-center justify-between gap-3 p-4 bg-slate-900 text-white rounded-2xl shadow-xl transform translate-y-2 opacity-0 transition-all duration-300 border border-slate-800`;
             toast.innerHTML = `
-                <div class="w-6 h-6 rounded-lg ${chosen.bg} flex items-center justify-center shrink-0">
-                    ${chosen.icon}
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <div class="w-6 h-6 rounded-lg ${chosen.bg} flex items-center justify-center shrink-0">
+                        ${chosen.icon}
+                    </div>
+                    <div class="text-xs font-bold truncate-2-lines break-words">${message}</div>
                 </div>
-                <div class="text-xs font-bold flex-1">${message}</div>
+                <button class="toast-close-btn p-1 -mr-1 text-slate-400 hover:text-white rounded-lg transition-colors focus:outline-none shrink-0" title="Tutup Notifikasi">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             `;
 
             container.appendChild(toast);
@@ -1296,13 +1359,23 @@ function doPost(e) {
                 toast.classList.remove('translate-y-2', 'opacity-0');
             }, 50);
 
-            // Animate Out & Remove
-            setTimeout(() => {
+            // Reusable dismiss animator
+            const dismissToast = () => {
                 toast.classList.add('translate-y-2', 'opacity-0');
                 setTimeout(() => {
                     toast.remove();
                 }, 300);
-            }, duration);
+            };
+
+            // Set auto-hide timer
+            const autoDismissTimeout = setTimeout(dismissToast, duration);
+
+            // Connect manual click event to close button
+            const closeBtn = toast.querySelector('.toast-close-btn');
+            closeBtn.addEventListener('click', () => {
+                clearTimeout(autoDismissTimeout); // Stop automatic timer on click
+                dismissToast();
+            });
         }
     </script>
 </body>
