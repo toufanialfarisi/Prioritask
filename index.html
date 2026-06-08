@@ -1313,7 +1313,6 @@ function doPost(e) {
                 // Since we use no-cors, we assume successful pipeline sync if fetch did not throw error.
                 setTimeout(() => {
                     triggerSyncSuccessAnimation();
-                    showToast("Tugas berhasil disinkronkan ke Spreadsheet!", "success");
                 }, 1200);
 
             } catch (error) {
