@@ -25,7 +25,7 @@
         }
     </script>
     <!-- Google Fonts: Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Canvas Confetti for Celebration -->
@@ -67,6 +67,46 @@
 </head>
 <body class="bg-slate-50 dark:bg-zinc-950 text-slate-800 dark:text-zinc-100 min-h-screen transition-colors duration-300">
 
+    <!-- Screen Lock Overlay -->
+    <div id="pin-lock-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-slate-900/90 dark:bg-zinc-950/95 backdrop-blur-xl transition-all duration-500">
+        <div class="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700/60 p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center space-y-6">
+            <!-- Security Header -->
+            <div class="flex flex-col items-center gap-2">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-lock text-xl"></i>
+                </div>
+                <h2 class="text-xl font-bold">Aplikasi Terkunci</h2>
+                <p class="text-xs text-slate-400 dark:text-zinc-500">Masukkan PIN Keamanan untuk melanjutkan</p>
+            </div>
+            
+            <!-- Dot indicators -->
+            <div class="flex justify-center gap-4 py-2">
+                <div id="pin-dot-1" class="w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all"></div>
+                <div id="pin-dot-2" class="w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all"></div>
+                <div id="pin-dot-3" class="w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all"></div>
+                <div id="pin-dot-4" class="w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all"></div>
+            </div>
+            
+            <!-- Virtual Numpad Grid -->
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="pressPin('1')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">1</button>
+                <button onclick="pressPin('2')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">2</button>
+                <button onclick="pressPin('3')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">3</button>
+                <button onclick="pressPin('4')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">4</button>
+                <button onclick="pressPin('5')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">5</button>
+                <button onclick="pressPin('6')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">6</button>
+                <button onclick="pressPin('7')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">7</button>
+                <button onclick="pressPin('8')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">8</button>
+                <button onclick="pressPin('9')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">9</button>
+                <button onclick="clearPin()" class="py-3.5 rounded-2xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-sm font-bold active:scale-95 transition-all">C</button>
+                <button onclick="pressPin('0')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">0</button>
+                <button onclick="backspacePin()" class="py-3.5 rounded-2xl text-slate-500 hover:bg-slate-50 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">
+                    <i class="fa-solid fa-delete-left"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Wrapper Toast Notification -->
     <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-5 z-50 flex flex-col-reverse gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
@@ -86,7 +126,7 @@
             <!-- Header Action Controls -->
             <div class="flex items-center gap-3">
                 <!-- Mode Status (Sheets vs Local) -->
-                <button onclick="openSettingsModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300" id="db-status-badge">
+                <button onclick="openDatabaseModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300" id="db-status-badge">
                     <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" id="db-status-dot"></span>
                     <span id="db-status-text">Memeriksa Database...</span>
                 </button>
@@ -97,7 +137,7 @@
                 </button>
 
                 <!-- Help/Settings Button -->
-                <button onclick="openSettingsModal()" class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center hover:bg-brand-600 shadow-md shadow-brand-500/10 hover:shadow-brand-500/30 transition-all duration-200" title="Pengaturan Spreadsheet">
+                <button onclick="openAppSettingsModal()" class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center hover:bg-brand-600 shadow-md shadow-brand-500/10 hover:shadow-brand-500/30 transition-all duration-200" title="Pengaturan PIN & Banner">
                     <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
@@ -113,12 +153,12 @@
             <!-- Left Side: Banner, Stats & Input Form Consolidated -->
             <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
                 
-                <!-- Compact Welcome Banner -->
+                <!-- Dynamic Welcome Banner -->
                 <div class="p-6 rounded-3xl bg-gradient-to-br from-brand-600 to-indigo-800 text-white relative overflow-hidden shadow-xl shadow-brand-500/10">
                     <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                     <div class="relative z-10">
-                        <h2 class="text-xl font-bold mb-1">Halo Sahabat Produktif! 👋</h2>
-                        <p class="text-indigo-100 text-xs leading-relaxed">
+                        <h2 id="display-banner-title" class="text-xl font-bold mb-1">Halo Sahabat Produktif! 👋</h2>
+                        <p id="display-banner-subtitle" class="text-indigo-100 text-xs leading-relaxed">
                             Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.
                         </p>
                     </div>
@@ -143,7 +183,7 @@
                             <span class="text-sm font-extrabold text-brand-500 mt-2 block" id="stat-total-hours">0 Jam</span>
                         </div>
                     </div>
-                    <!-- Modern Minimalist Progress Bar -->
+                    <!-- Modern Progress Bar -->
                     <div class="space-y-2 pt-1 border-t border-slate-100 dark:border-zinc-700/50">
                         <div class="flex justify-between items-center text-xs font-bold">
                             <span class="text-slate-500 dark:text-zinc-400">Progres Penyelesaian</span>
@@ -168,18 +208,13 @@
                     </div>
 
                     <form id="task-form" onsubmit="handleFormSubmit(event)" class="space-y-5">
-                        <!-- ID Hidden Input (for Editing) -->
                         <input type="hidden" id="task-id">
-
-                        <!-- Title -->
                         <div>
                             <label for="task-title" class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Judul Tugas</label>
                             <input type="text" id="task-title" required placeholder="Contoh: Menyelesaikan laporan keuangan bulanan..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm font-medium">
                         </div>
 
-                        <!-- Category & Priority Row -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Category (Kantor / Rumah) -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Kategori Tugas</label>
                                 <div class="grid grid-cols-2 gap-2">
@@ -194,7 +229,6 @@
                                 </div>
                             </div>
 
-                            <!-- Priority -->
                             <div>
                                 <label for="task-priority" class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Prioritas</label>
                                 <select id="task-priority" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm font-semibold">
@@ -205,7 +239,6 @@
                             </div>
                         </div>
 
-                        <!-- Duration Estimator (Slider with Live Calculation) -->
                         <div>
                             <div class="flex justify-between items-center mb-2">
                                 <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Estimasi Durasi</label>
@@ -219,13 +252,11 @@
                             </div>
                         </div>
 
-                        <!-- Target Date -->
                         <div>
                             <label for="task-target-date" class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Target Tanggal</label>
                             <input type="date" id="task-target-date" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm font-semibold">
                         </div>
 
-                        <!-- Submit Button -->
                         <button type="submit" class="w-full py-4 px-6 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-brand-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                             <i id="submit-btn-icon" class="fa-solid fa-plus-circle text-lg"></i>
                             <span id="submit-btn-text">Tambahkan Tugas</span>
@@ -243,7 +274,6 @@
                         <input type="text" id="search-input" oninput="filterAndRenderTasks()" placeholder="Cari berdasarkan judul tugas..." class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
                     </div>
                     
-                    <!-- Filters Tabs -->
                     <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
                         <button onclick="changeActiveFilter('Semua')" id="filter-all" class="px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap bg-brand-500 text-white shadow-md shadow-brand-500/10 transition-all duration-200">
                             Semua
@@ -284,9 +314,7 @@
                         <span class="text-xs text-slate-400 dark:text-zinc-500" id="task-showing-count">Menampilkan 0 tugas</span>
                     </div>
 
-                    <!-- Auto Scroll Task List (Max Height & Custom Scrollbar) -->
                     <div id="task-list-element" class="task-list-container max-h-[500px] overflow-y-auto space-y-4 pr-1 scroll-smooth">
-                        <!-- Shimmer Placeholders on Load -->
                         <div class="task-shimmer space-y-4">
                             <div class="p-5 border border-slate-200 dark:border-zinc-700 rounded-2xl shimmer h-24"></div>
                             <div class="p-5 border border-slate-200 dark:border-zinc-700 rounded-2xl shimmer h-24"></div>
@@ -299,21 +327,21 @@
         </section>
     </main>
 
-    <!-- Modal Settings: Google Spreadsheet Connection & Guide -->
-    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+    <!-- Modal 1: Google Spreadsheet Connection & Guide -->
+    <div id="database-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
         <div class="bg-white dark:bg-zinc-800 rounded-3xl border border-slate-200 dark:border-zinc-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col transition-all duration-300">
             <!-- Modal Header -->
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-700 pb-4 mb-6">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center text-xl shadow-lg shadow-green-500/20">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20">
                         <i class="fa-solid fa-file-excel"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-lg">Konfigurasi Google Spreadsheet</h3>
+                        <h3 class="font-bold text-lg">Konfigurasi Database Spreadsheet</h3>
                         <p class="text-xs text-slate-400 dark:text-zinc-500">Hubungkan database Prioritask ke Spreadsheet Anda</p>
                     </div>
                 </div>
-                <button onclick="closeSettingsModal()" class="w-8 h-8 rounded-full border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
+                <button onclick="closeDatabaseModal()" class="w-8 h-8 rounded-full border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -321,7 +349,7 @@
             <!-- Modal Body (Inputs & Guide) -->
             <div class="space-y-6 flex-1 pr-1">
                 <!-- Deployment URL Input -->
-                <div class="bg-slate-50 dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-700">
+                <div class="bg-slate-50 dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-700/80">
                     <label for="web-app-url-input" class="block text-sm font-bold mb-2">Google Apps Script Web App URL</label>
                     <input type="url" id="web-app-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all font-mono">
                     <p class="text-xs text-slate-400 dark:text-zinc-500 mt-2">Biarkan kosong jika Anda ingin menggunakan <span class="font-bold text-brand-500">Mode Penyimpanan Lokal (Demo Offline)</span>.</p>
@@ -335,15 +363,13 @@
                     </h4>
                     
                     <div class="relative border-l border-slate-200 dark:border-zinc-700 pl-6 space-y-5 ml-3">
-                        <!-- Step 1 -->
                         <div class="relative">
                             <span class="absolute -left-[34px] top-0 w-4 h-4 rounded-full bg-brand-500 border-4 border-white dark:border-zinc-800"></span>
                             <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Langkah 1</h5>
                             <p class="text-sm font-semibold mt-0.5">Buat Google Spreadsheet Baru</p>
-                            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Buka <a href="https://sheets.new" target="_blank" class="text-brand-500 underline">sheets.new</a>. Biarkan sheet kosong (baris header pertama akan terisi otomatis oleh sistem).</p>
+                            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Buka <a href="https://sheets.new" target="_blank" class="text-brand-500 underline">sheets.new</a>.</p>
                         </div>
 
-                        <!-- Step 2 -->
                         <div class="relative">
                             <span class="absolute -left-[34px] top-0 w-4 h-4 rounded-full bg-brand-500 border-4 border-white dark:border-zinc-800"></span>
                             <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Langkah 2</h5>
@@ -351,14 +377,10 @@
                             <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Pada menu Spreadsheet Anda, masuk ke <strong>Ekstensi</strong> &gt; <strong>Apps Script</strong>.</p>
                         </div>
 
-                        <!-- Step 3 -->
                         <div class="relative">
                             <span class="absolute -left-[34px] top-0 w-4 h-4 rounded-full bg-brand-500 border-4 border-white dark:border-zinc-800"></span>
                             <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Langkah 3</h5>
                             <p class="text-sm font-semibold mt-0.5">Salin Kode Script Di Bawah</p>
-                            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1 mb-2">Hapus semua kode bawaan di jendela Apps Script, lalu gantikan dengan kode skrip berikut:</p>
-                            
-                            <!-- Apps Script Copyable Box -->
                             <div class="relative">
                                 <pre class="bg-slate-900 text-slate-300 text-[10px] p-4 rounded-xl overflow-x-auto font-mono max-h-48" id="script-code-block">
 function doGet(e) {
@@ -432,20 +454,11 @@ function doPost(e) {
                             </div>
                         </div>
 
-                        <!-- Step 4 -->
                         <div class="relative">
                             <span class="absolute -left-[34px] top-0 w-4 h-4 rounded-full bg-brand-500 border-4 border-white dark:border-zinc-800"></span>
                             <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Langkah 4</h5>
                             <p class="text-sm font-semibold mt-0.5">Terapkan Sebagai Web App (Deploy)</p>
-                            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Klik tombol <strong>Terapkan (Deploy)</strong> di bagian atas &gt; pilih <strong>Penerapan baru (New deployment)</strong>. Pilih tipe: <strong>Aplikasi web (Web app)</strong>. Konfigurasikan: <br>- Berikan deskripsi.<br>- Jalankan sebagai: <strong>Saya (email Anda)</strong>.<br>- Siapa yang memiliki akses: <strong>Siapa saja (Anyone)</strong> &lt;-- <i>Sangat Penting!</i></p>
-                        </div>
-
-                        <!-- Step 5 -->
-                        <div class="relative">
-                            <span class="absolute -left-[34px] top-0 w-4 h-4 rounded-full bg-brand-500 border-4 border-white dark:border-zinc-800"></span>
-                            <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Langkah 5</h5>
-                            <p class="text-sm font-semibold mt-0.5">Salin URL & Simpan ke Sini</p>
-                            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Salin <strong>URL Aplikasi Web</strong> yang dihasilkan setelah deployment, tempelkan di kolom input paling atas modal ini, kemudian klik tombol Simpan.</p>
+                            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Klik tombol <strong>Terapkan (Deploy)</strong> &gt; pilih <strong>Penerapan baru (New deployment)</strong>. Pilih tipe: <strong>Aplikasi web (Web app)</strong>.<br>- Jalankan sebagai: <strong>Saya (email Anda)</strong>.<br>- Siapa yang memiliki akses: <strong>Siapa saja (Anyone)</strong></p>
                         </div>
                     </div>
                 </div>
@@ -453,11 +466,119 @@ function doPost(e) {
 
             <!-- Modal Footer -->
             <div class="border-t border-slate-100 dark:border-zinc-700 pt-4 mt-6 flex justify-end gap-3">
-                <button onclick="closeSettingsModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
-                    Batal
+                <button onclick="closeDatabaseModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
+                    Tutup
                 </button>
-                <button onclick="saveSettings()" class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/15 hover:bg-brand-600 active:scale-95 transition-all">
-                    Simpan & Hubungkan
+                <button onclick="saveDatabaseSettings()" class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/15 hover:bg-brand-600 active:scale-95 transition-all">
+                    Hubungkan Database
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: App Settings (PIN Change, Session, & Banner Customizer) -->
+    <div id="app-settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white dark:bg-zinc-800 rounded-3xl border border-slate-200 dark:border-zinc-700 w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col transition-all duration-300">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-700 pb-4 mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 text-white flex items-center justify-center text-xl shadow-lg shadow-brand-500/20">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg">Konfigurasi Aplikasi</h3>
+                        <p class="text-xs text-slate-400 dark:text-zinc-500">Kelola sistem keamanan PIN, durasi sesi, dan kustomisasi banner</p>
+                    </div>
+                </div>
+                <button onclick="closeAppSettingsModal()" class="w-8 h-8 rounded-full border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Tab Navigation -->
+            <div class="flex border-b border-slate-100 dark:border-zinc-700/80 mb-6">
+                <button onclick="switchAppSettingsTab('security')" id="set-tab-security" class="flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-key text-amber-500"></i> Keamanan PIN & Sesi
+                </button>
+                <button onclick="switchAppSettingsTab('banner')" id="set-tab-banner" class="flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-solid fa-heading text-brand-500"></i> Kustomisasi Banner
+                </button>
+            </div>
+
+            <!-- Tab Content 1: Security PIN -->
+            <div id="settings-content-security" class="space-y-6">
+                <div class="bg-slate-50 dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-700/80 space-y-4">
+                    <h4 class="text-sm font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-amber-500"></i>
+                        Pengaturan PIN & Kunci Sesi
+                    </h4>
+                    <p class="text-xs text-slate-400 dark:text-zinc-500 leading-relaxed">
+                        Masukkan PIN 4-digit baru jika ingin menggantinya. Sesuaikan juga durasi waktu tenggang (inaktivitas) sebelum aplikasi terkunci kembali.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-zinc-700/50 pb-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2 tracking-wider">PIN Baru</label>
+                            <input type="password" id="input-new-pin" maxlength="4" placeholder="Tetap (tidak diubah)" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-center text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2 tracking-wider">Konfirmasi PIN</label>
+                            <input type="password" id="input-confirm-pin" maxlength="4" placeholder="Ulangi PIN baru" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-center text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="input-session-duration" class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2 tracking-wider">Durasi Sesi Kunci Otomatis</label>
+                        <select id="input-session-duration" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                            <option value="1">1 Menit</option>
+                            <option value="3">3 Menit</option>
+                            <option value="5">5 Menit</option>
+                            <option value="10" selected>10 Menit (Default)</option>
+                            <option value="15">15 Menit</option>
+                            <option value="30">30 Menit</option>
+                            <option value="60">1 Jam</option>
+                            <option value="999999">Jangan Pernah Kunci Otomatis</option>
+                        </select>
+                    </div>
+
+                    <button onclick="saveSecuritySettings()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-lock-open"></i>
+                        <span>Simpan Setelan Keamanan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content 2: Banner Customizer -->
+            <div id="settings-content-banner" class="hidden space-y-6">
+                <div class="bg-slate-50 dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-700/80 space-y-4">
+                    <h4 class="text-sm font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-2">
+                        <i class="fa-solid fa-heading text-brand-500"></i>
+                        Kustomisasi Tulisan Banner
+                    </h4>
+                    <p class="text-xs text-slate-400 dark:text-zinc-500 leading-relaxed">
+                        Sesuaikan kata sambutan dan kalimat motivasi pada kartu utama dashboard Anda.
+                    </p>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2">Judul Banner</label>
+                        <input type="text" id="input-banner-title" placeholder="Halo Sahabat Produktif! 👋" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2">Subjudul Banner</label>
+                        <textarea id="input-banner-subtitle" rows="3" placeholder="Mari selesaikan rencana tugas..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all resize-none"></textarea>
+                    </div>
+
+                    <button onclick="saveBannerConfig()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Simpan Perubahan Banner</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="border-t border-slate-100 dark:border-zinc-700 pt-4 mt-6 flex justify-end">
+                <button onclick="closeAppSettingsModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
+                    Tutup
                 </button>
             </div>
         </div>
@@ -474,10 +595,23 @@ function doPost(e) {
         let webAppUrl = '';
         let countdownIntervalId = null;
 
+        // Security PIN and Banner States
+        let currentPin = '2911'; // Default PIN
+        let enteredPin = '';
+        let appLocked = true;
+        let lastActivityTime = Date.now();
+        let sessionDuration = 10; // Default session timeout in minutes
+        let bannerTitle = 'Halo Sahabat Produktif! 👋';
+        let bannerSubtitle = 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.';
+
         // Local Storage Keys
         const STORAGE_KEY_TASKS = 'prioritask_local_tasks';
         const STORAGE_KEY_DARK_MODE = 'prioritask_dark_mode';
         const STORAGE_KEY_API_URL = 'prioritask_api_url';
+        const STORAGE_KEY_PIN = 'prioritask_pin';
+        const STORAGE_KEY_SESSION_DURATION = 'prioritask_session_duration';
+        const STORAGE_KEY_BANNER_TITLE = 'prioritask_banner_title';
+        const STORAGE_KEY_BANNER_SUBTITLE = 'prioritask_banner_subtitle';
 
         // Initial Setup on DOM Loaded
         window.addEventListener('DOMContentLoaded', () => {
@@ -491,6 +625,12 @@ function doPost(e) {
             
             // Fetch/Init Tasks Data
             fetchTasks();
+
+            // Bind Keyboard listeners for PIN
+            initKeyboardPin();
+
+            // Start Smart Inactivity Watchdog
+            initInactivityWatcher();
         });
 
         // Toggle Category Tabs (Kantor vs Rumah)
@@ -536,22 +676,57 @@ function doPost(e) {
             document.getElementById('duration-display').innerText = `${val} Jam`;
         }
 
-        // Modal Controls
-        function openSettingsModal() {
+        // Modal 1: Database Modal Controls
+        function openDatabaseModal() {
             document.getElementById('web-app-url-input').value = webAppUrl;
-            document.getElementById('settings-modal').classList.remove('hidden');
+            document.getElementById('database-modal').classList.remove('hidden');
         }
 
-        function closeSettingsModal() {
-            document.getElementById('settings-modal').classList.add('hidden');
+        function closeDatabaseModal() {
+            document.getElementById('database-modal').classList.add('hidden');
         }
 
-        // Save Settings (Database Connection)
-        function saveSettings() {
+        // Modal 2: App Settings Modal Controls
+        function openAppSettingsModal() {
+            document.getElementById('input-session-duration').value = sessionDuration;
+            // Sync values from state to input elements inside modal
+            document.getElementById('input-banner-title').value = bannerTitle;
+            document.getElementById('input-banner-subtitle').value = bannerSubtitle;
+            
+            switchAppSettingsTab('security');
+            document.getElementById('app-settings-modal').classList.remove('hidden');
+        }
+
+        function closeAppSettingsModal() {
+            document.getElementById('app-settings-modal').classList.add('hidden');
+        }
+
+        // Inner Tab Switcher for App Settings
+        function switchAppSettingsTab(tabName) {
+            const btnSecurity = document.getElementById('set-tab-security');
+            const btnBanner = document.getElementById('set-tab-banner');
+            const contentSecurity = document.getElementById('settings-content-security');
+            const contentBanner = document.getElementById('settings-content-banner');
+
+            if (tabName === 'security') {
+                btnSecurity.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-2 transition-all";
+                btnBanner.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-2 transition-all";
+                contentSecurity.classList.remove('hidden');
+                contentBanner.classList.add('hidden');
+            } else {
+                btnBanner.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-2 transition-all";
+                btnSecurity.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-2 transition-all";
+                contentBanner.classList.remove('hidden');
+                contentSecurity.classList.add('hidden');
+            }
+        }
+
+        // Save Database Connection URL Settings
+        function saveDatabaseSettings() {
             const urlInput = document.getElementById('web-app-url-input').value.trim();
             webAppUrl = urlInput;
             localStorage.setItem(STORAGE_KEY_API_URL, urlInput);
-            closeSettingsModal();
+            closeDatabaseModal();
             
             showToast('Database Tersimpan!', urlInput ? 'Mulai menyinkronkan dengan Google Spreadsheet...' : 'Beralih menggunakan Penyimpanan Lokal.', 'success');
             
@@ -598,37 +773,105 @@ function doPost(e) {
 
             webAppUrl = localStorage.getItem(STORAGE_KEY_API_URL) || '';
             updateConnectionStatus();
+
+            // Load Security Configurations
+            currentPin = localStorage.getItem(STORAGE_KEY_PIN) || '2911';
+            sessionDuration = parseInt(localStorage.getItem(STORAGE_KEY_SESSION_DURATION)) || 10;
+            bannerTitle = localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋';
+            bannerSubtitle = localStorage.getItem(STORAGE_KEY_BANNER_SUBTITLE) || 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.';
+
+            updateBannerUI();
         }
 
-        // Handle Read Operations (Fetch Tasks)
+        function updateBannerUI() {
+            document.getElementById('display-banner-title').innerText = bannerTitle;
+            document.getElementById('display-banner-subtitle').innerText = bannerSubtitle;
+        }
+
+        // Handle Read Operations (Fetch Tasks & Configs)
         async function fetchTasks() {
             showShimmer(true);
+            let fetchedData = [];
             if (webAppUrl) {
                 try {
                     // Fetch directly from deployed Google Sheets
                     const response = await fetch(webAppUrl);
                     if (!response.ok) throw new Error('Koneksi Gagal');
-                    const data = await response.json();
-                    tasks = data;
+                    fetchedData = await response.json();
                 } catch (error) {
                     showToast('Gagal Menghubungi Spreadsheet!', 'Menggunakan data cadangan lokal sementara.', 'warning');
-                    loadLocalTasks();
+                    fetchedData = getLocalDataAll();
                 }
             } else {
-                loadLocalTasks();
+                fetchedData = getLocalDataAll();
             }
+
+            // Extract Config rows from task rows seamlessly
+            const configRows = fetchedData.filter(item => item.id.startsWith('cfg_'));
+            tasks = fetchedData.filter(item => !item.id.startsWith('cfg_'));
+
+            // Parse existing configs
+            const pinConfig = configRows.find(c => c.id === 'cfg_pin');
+            if (pinConfig) {
+                currentPin = pinConfig.title;
+                localStorage.setItem(STORAGE_KEY_PIN, currentPin);
+            }
+
+            const sessionConfig = configRows.find(c => c.id === 'cfg_session_duration');
+            if (sessionConfig) {
+                sessionDuration = parseInt(sessionConfig.title) || 10;
+                localStorage.setItem(STORAGE_KEY_SESSION_DURATION, sessionDuration);
+            }
+
+            const titleConfig = configRows.find(c => c.id === 'cfg_banner_title');
+            if (titleConfig) {
+                bannerTitle = titleConfig.title;
+                localStorage.setItem(STORAGE_KEY_BANNER_TITLE, bannerTitle);
+            }
+
+            const subtitleConfig = configRows.find(c => c.id === 'cfg_banner_subtitle');
+            if (subtitleConfig) {
+                bannerSubtitle = subtitleConfig.title;
+                localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, bannerSubtitle);
+            }
+
+            updateBannerUI();
             showShimmer(false);
             filterAndRenderTasks();
             updateStatistics();
         }
 
-        function loadLocalTasks() {
+        function getLocalDataAll() {
             const localTasks = localStorage.getItem(STORAGE_KEY_TASKS);
-            tasks = localTasks ? JSON.parse(localTasks) : [];
+            let parsed = localTasks ? JSON.parse(localTasks) : [];
+
+            // Safe inject default config rows if they do not exist
+            const localPin = localStorage.getItem(STORAGE_KEY_PIN) || '2911';
+            const localSession = localStorage.getItem(STORAGE_KEY_SESSION_DURATION) || '10';
+            const localTitle = localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋';
+            const localSub = localStorage.getItem(STORAGE_KEY_BANNER_SUBTITLE) || 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.';
+
+            if (!parsed.some(t => t.id === 'cfg_pin')) {
+                parsed.push({ id: 'cfg_pin', title: localPin, priority: 'config' });
+            }
+            if (!parsed.some(t => t.id === 'cfg_session_duration')) {
+                parsed.push({ id: 'cfg_session_duration', title: localSession, priority: 'config' });
+            }
+            if (!parsed.some(t => t.id === 'cfg_banner_title')) {
+                parsed.push({ id: 'cfg_banner_title', title: localTitle, priority: 'config' });
+            }
+            if (!parsed.some(t => t.id === 'cfg_banner_subtitle')) {
+                parsed.push({ id: 'cfg_banner_subtitle', title: localSub, priority: 'config' });
+            }
+            return parsed;
         }
 
         function saveLocalTasks() {
-            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(tasks));
+            // Keep config rows preserved during task state updates
+            const allSaved = getLocalDataAll();
+            const configRowsOnly = allSaved.filter(item => item.id.startsWith('cfg_'));
+            const finalMerged = [...configRowsOnly, ...tasks];
+            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(finalMerged));
         }
 
         // Show Shimmer Skeleton Loading
@@ -673,32 +916,29 @@ function doPost(e) {
             showLoadingStateOnButton(true, isEditOperation);
 
             if (webAppUrl) {
-                // Sync to spreadsheet
                 const actionType = isEditOperation ? 'update' : 'create';
                 try {
-                    const response = await fetch(webAppUrl, {
+                    await fetch(webAppUrl, {
                         method: 'POST',
-                        mode: 'no-cors', // handle redirection safely inside standard gas
+                        mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: actionType, ...taskPayload })
                     });
                     
-                    // Local state updates directly to keep UI snappy
                     if (isEditOperation) {
                         const index = tasks.findIndex(t => t.id === id);
                         if (index !== -1) {
-                            taskPayload.completed = tasks[index].completed; // keep completion state
+                            taskPayload.completed = tasks[index].completed;
                             tasks[index] = taskPayload;
                         }
                     } else {
                         tasks.unshift(taskPayload);
                     }
-                    saveLocalTasks(); // mirror locally as backup
+                    saveLocalTasks(); 
                 } catch (error) {
                     showToast('Gagal Sinkronisasi!', 'Tugas gagal dikirim ke spreadsheet.', 'warning');
                 }
             } else {
-                // Safe offline fallback
                 if (isEditOperation) {
                     const index = tasks.findIndex(t => t.id === id);
                     if (index !== -1) {
@@ -711,22 +951,18 @@ function doPost(e) {
                 saveLocalTasks();
             }
 
-            // UI feedback
             showToast(
                 isEditOperation ? 'Tugas Diperbarui!' : 'Tugas Baru Ditambahkan!',
                 `Tugas "${title.substring(0, 30)}..." berhasil ${isEditOperation ? 'diedit' : 'dijadwalkan'}.`,
                 'success'
             );
 
-            // Resetting and sync category view
             showLoadingStateOnButton(false, isEditOperation);
             resetForm();
             
-            // Auto switch active tab to match the task category
             changeCategoryTab(category);
             updateStatistics();
 
-            // Smoothly auto-scroll to the affected task card in list
             setTimeout(() => {
                 const targetCard = document.getElementById(`task-card-${taskPayload.id}`);
                 if (targetCard) {
@@ -745,7 +981,6 @@ function doPost(e) {
             const isDoneNow = !tasks[index].completed;
             tasks[index].completed = isDoneNow;
 
-            // Trigger Confetti Celebration for completed item
             if (isDoneNow) {
                 confetti({
                     particleCount: 80,
@@ -758,7 +993,6 @@ function doPost(e) {
                 showToast('Tugas Dibuka Kembali 🔄', `Status tugas diatur ulang menjadi belum selesai.`, 'info');
             }
 
-            // Sync to sheets
             if (webAppUrl) {
                 try {
                     await fetch(webAppUrl, {
@@ -811,23 +1045,19 @@ function doPost(e) {
             document.getElementById('task-duration').value = task.duration;
             updateDurationDisplay(task.duration);
             
-            // Format Target Tanggal to compatible yyyy-MM-dd
             let targetDateVal = task.targetDate;
             if (targetDateVal.includes('T')) {
                 targetDateVal = targetDateVal.split('T')[0];
             }
             document.getElementById('task-target-date').value = targetDateVal;
 
-            // Set Kategori Radio
             document.querySelector(`input[name="task-category"][value="${task.category}"]`).checked = true;
 
-            // Change Save button visual to Edit style
             document.getElementById('submit-btn-text').innerText = "Perbarui Perubahan Tugas";
             document.getElementById('submit-btn-icon').className = "fa-solid fa-file-pen";
             
-            // Highlight Input field
             document.getElementById('task-title').focus();
-            showToast('Mode Edit Aktif', 'Formulir telah diisi sesuai data tugas terpilih.', 'info');
+            showToast('Mode Edit Hack', 'Formulir telah diisi sesuai data tugas terpilih.', 'info');
         }
 
         // Reset & Clear input Form
@@ -861,7 +1091,6 @@ function doPost(e) {
                 'Rendah': 'filter-low'
             };
 
-            // Reset classes
             for (const key in filterIds) {
                 const btn = document.getElementById(filterIds[key]);
                 if (key === filterType) {
@@ -881,7 +1110,6 @@ function doPost(e) {
 
         // Real-Time Countdown Core Processor
         function initRealtimeCountdowns() {
-            // Clear existing interval if any to avoid duplication overhead
             if (countdownIntervalId) {
                 clearInterval(countdownIntervalId);
             }
@@ -894,17 +1122,15 @@ function doPost(e) {
                     const targetStr = el.getAttribute('data-target-date');
                     const taskId = el.getAttribute('data-task-id');
                     
-                    // Set target deadline to the very end of the target day (23:59:59)
                     const deadline = new Date(targetStr + 'T23:59:59');
                     const now = new Date();
                     const diff = deadline - now;
 
                     if (diff <= 0) {
                         el.innerHTML = `<span class="text-rose-500 font-extrabold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation animate-bounce"></i> Waktu Habis!</span>`;
-                        // Update container styling dynamically to warning-red (align with top-right design)
                         const container = document.getElementById(`countdown-badge-${taskId}`);
                         if (container) {
-                            container.className = "flex items-center gap-1.5 text-[10px] bg-rose-50 dark:bg-rose-950/20 px-2.5 py-0.5 rounded-lg text-rose-500 border border-rose-200/50 dark:border-rose-900/30 ml-auto transition-all";
+                            container.className = "flex items-center gap-1.5 text-[11px] bg-rose-50 dark:bg-rose-950/20 px-2.5 py-1 rounded-xl text-rose-500 border border-rose-200/50 dark:border-rose-900/30 ml-auto transition-all";
                         }
                     } else {
                         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -931,20 +1157,16 @@ function doPost(e) {
             const searchKeyword = document.getElementById('search-input').value.toLowerCase().trim();
             const listContainer = document.getElementById('task-list-element');
             
-            // 1. Filter by active category tab (Kantor vs Rumah)
             let filtered = tasks.filter(t => t.category === activeCategory);
 
-            // 2. Filter by active priority filter
             if (activeFilter !== 'Semua') {
                 filtered = filtered.filter(t => t.priority === activeFilter);
             }
 
-            // 3. Filter by active search query
             if (searchKeyword) {
                 filtered = filtered.filter(t => t.title.toLowerCase().includes(searchKeyword));
             }
 
-            // Update Tab Badge Counters dynamically (only count incomplete active tasks)
             const activeKantorTasks = tasks.filter(t => t.category === 'Kantor' && !t.completed).length;
             const activeRumahTasks = tasks.filter(t => t.category === 'Rumah' && !t.completed).length;
 
@@ -968,7 +1190,6 @@ function doPost(e) {
 
             listContainer.innerHTML = '';
             filtered.forEach(task => {
-                // Priority specific classes
                 let priorityColor = '';
                 let priorityLabel = '';
                 if (task.priority === 'Tinggi') {
@@ -982,14 +1203,11 @@ function doPost(e) {
                     priorityLabel = '🟢 Rendah';
                 }
 
-                // Category specific icons
                 const catIcon = task.category === 'Kantor' ? 'fa-briefcase' : 'fa-house-chimney';
                 const catBg = task.category === 'Kantor' ? 'bg-indigo-50 text-indigo-500 dark:bg-indigo-950/20' : 'bg-fuchsia-50 text-fuchsia-500 dark:bg-fuchsia-950/20';
 
-                // Format Target Date presentation
                 const targetFormatted = task.targetDate ? formatDateString(task.targetDate) : '-';
 
-                // Checked status styling
                 const titleStyle = task.completed ? 'line-through text-slate-400 dark:text-zinc-500 font-medium' : 'font-semibold';
                 const cardStyle = task.completed 
                     ? 'opacity-70 bg-slate-50/50 dark:bg-zinc-800/40 border-slate-200 dark:border-zinc-700' 
@@ -997,14 +1215,11 @@ function doPost(e) {
 
                 const cardHtml = `
                     <div id="task-card-${task.id}" class="p-5 border rounded-2xl flex items-start gap-4 transition-all duration-300 ${cardStyle}">
-                        <!-- Task Completed Checkbox Toggle -->
                         <button onclick="toggleTaskComplete('${task.id}')" class="mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${task.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-zinc-500 hover:border-brand-500 dark:hover:border-brand-400'}">
                             ${task.completed ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
                         </button>
 
-                        <!-- Main Core Card Content -->
                         <div class="flex-1 min-w-0">
-                            <!-- Category, Priority, and Countdown indicators (Top Row) -->
                             <div class="flex flex-wrap gap-2 items-center mb-2">
                                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${priorityColor}">
                                     ${priorityLabel}
@@ -1013,26 +1228,23 @@ function doPost(e) {
                                     <i class="fa-solid ${catIcon}"></i>
                                     ${task.category}
                                 </span>
-                                <!-- Real-time Countdown Badge Info (Replaced Duration here) -->
                                 ${!task.completed ? `
-                                    <div id="countdown-badge-${task.id}" class="flex items-center gap-1.5 text-[10px] bg-slate-100 dark:bg-zinc-900/50 px-2.5 py-0.5 rounded-lg text-slate-600 dark:text-zinc-400 border border-slate-200/30 dark:border-zinc-700/50 ml-auto transition-all font-semibold">
+                                    <div id="countdown-badge-${task.id}" class="flex items-center gap-1.5 text-[11px] bg-slate-100 dark:bg-zinc-900 px-2.5 py-0.5 rounded-lg text-slate-600 dark:text-zinc-400 border border-slate-200/30 dark:border-zinc-700/50 ml-auto transition-all font-semibold">
                                         <i class="fa-solid fa-stopwatch animate-pulse text-brand-500"></i>
                                         <span class="task-countdown-element font-semibold tracking-tight" data-task-id="${task.id}" data-target-date="${task.targetDate}">Menghitung...</span>
                                     </div>
                                 ` : `
-                                    <div class="flex items-center gap-1.5 text-[10px] bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-0.5 rounded-lg text-emerald-600 dark:text-emerald-400 border border-emerald-100/20 dark:border-emerald-900/20 ml-auto font-extrabold">
+                                    <div class="flex items-center gap-1.5 text-[11px] bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-0.5 rounded-lg text-emerald-600 dark:text-emerald-400 border border-emerald-100/20 dark:border-emerald-900/20 ml-auto font-extrabold">
                                         <i class="fa-solid fa-check-double text-emerald-500"></i>
                                         <span>Selesai</span>
                                     </div>
                                 `}
                             </div>
 
-                            <!-- Task Title -->
                             <h4 class="text-sm break-words transition-colors leading-relaxed ${titleStyle}">
                                 ${task.title}
                             </h4>
 
-                            <!-- Target Due Date & Duration at Bottom -->
                             <div class="flex flex-wrap items-center gap-3 mt-4 border-t border-slate-100 dark:border-zinc-700/50 pt-3">
                                 <div class="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-zinc-500 font-semibold">
                                     <i class="fa-regular fa-calendar text-brand-500"></i>
@@ -1045,7 +1257,6 @@ function doPost(e) {
                             </div>
                         </div>
 
-                        <!-- Action Controls (Edit & Delete) -->
                         <div class="flex flex-col gap-1.5">
                             <button onclick="editTask('${task.id}')" class="w-8 h-8 rounded-xl bg-slate-50 dark:bg-zinc-700/80 text-slate-500 hover:bg-brand-50 dark:hover:bg-brand-950/20 hover:text-brand-500 flex items-center justify-center transition-all" title="Edit Tugas">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
@@ -1060,14 +1271,12 @@ function doPost(e) {
                 listContainer.insertAdjacentHTML('beforeend', cardHtml);
             });
 
-            // Re-initialize and sync the global ticking countdown interval
             initRealtimeCountdowns();
         }
 
         // Format Date string formatting helper
         function formatDateString(dateStr) {
             try {
-                // handles date-only correctly preventing offset bug
                 const [year, month, day] = dateStr.split('T')[0].split('-');
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                 return `${day} ${months[parseInt(month) - 1]} ${year}`;
@@ -1078,14 +1287,12 @@ function doPost(e) {
 
         // Update Statistics Banner & Elegant Progress Bar
         function updateStatistics() {
-            // Menyaring tugas hanya berdasarkan kategori tab yang sedang aktif (Kantor vs Rumah)
             const categoryTasks = tasks.filter(t => t.category === activeCategory);
 
             const total = categoryTasks.length;
             const completed = categoryTasks.filter(t => t.completed).length;
             const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-            // Estimasi sisa jam kerja untuk tugas yang belum selesai di kategori aktif
             const totalHours = categoryTasks.reduce((acc, current) => acc + (current.completed ? 0 : current.duration), 0);
 
             document.getElementById('stat-total-tasks').innerText = total;
@@ -1093,7 +1300,6 @@ function doPost(e) {
             document.getElementById('stat-progress-text').innerText = `${percentage}%`;
             document.getElementById('stat-total-hours').innerText = `${totalHours} Jam`;
 
-            // Animate Elegant Progress Bar
             const progressBar = document.getElementById('progress-bar');
             if (progressBar) {
                 progressBar.style.width = `${percentage}%`;
@@ -1163,6 +1369,224 @@ function doPost(e) {
                 toastEl.classList.add('translate-y-12', 'opacity-0');
                 setTimeout(() => toastEl.remove(), 300);
             }
+        }
+
+        // ================= SECURITY PIN SYSTEM LOGIC =================
+        function pressPin(digit) {
+            if (enteredPin.length < 4) {
+                enteredPin += digit;
+                updatePinDots();
+                
+                if (enteredPin.length === 4) {
+                    setTimeout(verifyPin, 150);
+                }
+            }
+        }
+
+        function backspacePin() {
+            if (enteredPin.length > 0) {
+                enteredPin = enteredPin.slice(0, -1);
+                updatePinDots();
+            }
+        }
+
+        function clearPin() {
+            enteredPin = '';
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById(`pin-dot-${i}`);
+                if (i <= enteredPin.length) {
+                    dot.className = "w-4.5 h-4.5 rounded-full bg-brand-500 border-2 border-brand-500 scale-110 transition-all shadow-md shadow-brand-500/20";
+                } else {
+                    dot.className = "w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all";
+                }
+            }
+        }
+
+        function verifyPin() {
+            if (enteredPin === currentPin) {
+                unlockApp();
+            } else {
+                showToast("PIN Salah!", "PIN keamanan yang dimasukkan tidak terdaftar.", "warning");
+                enteredPin = '';
+                updatePinDots();
+            }
+        }
+
+        function unlockApp() {
+            appLocked = false;
+            enteredPin = '';
+            updatePinDots();
+            lastActivityTime = Date.now();
+            
+            const lockScreen = document.getElementById('pin-lock-screen');
+            lockScreen.classList.add('opacity-0', 'pointer-events-none');
+            showToast("Akses Terbuka 🎉", "Selamat bekerja kembali di Prioritask!", "success");
+        }
+
+        function lockApp() {
+            appLocked = true;
+            enteredPin = '';
+            updatePinDots();
+            
+            const lockScreen = document.getElementById('pin-lock-screen');
+            lockScreen.classList.remove('opacity-0', 'pointer-events-none');
+            showToast("Aplikasi Terkunci", "PIN diminta kembali demi menjaga privasi data pengerjaan.", "info");
+        }
+
+        function initKeyboardPin() {
+            window.addEventListener('keydown', (e) => {
+                if (appLocked) {
+                    if (e.key >= '0' && e.key <= '9') {
+                        pressPin(e.key);
+                    } else if (e.key === 'Backspace') {
+                        backspacePin();
+                    } else if (e.key === 'Escape' || e.key === 'Delete') {
+                        clearPin();
+                    }
+                }
+            });
+        }
+
+        function initInactivityWatcher() {
+            const resetTimer = () => {
+                if (!appLocked) {
+                    lastActivityTime = Date.now();
+                }
+            };
+
+            window.addEventListener('mousemove', resetTimer);
+            window.addEventListener('keypress', resetTimer);
+            window.addEventListener('click', resetTimer);
+            window.addEventListener('touchstart', resetTimer);
+
+            setInterval(() => {
+                if (!appLocked) {
+                    const elapsed = Date.now() - lastActivityTime;
+                    const maxAllowed = sessionDuration * 60 * 1000; 
+                    if (elapsed >= maxAllowed) {
+                        lockApp();
+                    }
+                }
+            }, 10000); // Check inactivity every 10 seconds
+        }
+
+        // Core Helper to Save App Configurations (PIN, Session, Banner) safely into Spreadsheet
+        async function saveConfigToSpreadsheet(configId, configValue) {
+            const payload = {
+                id: configId,
+                title: configValue,
+                priority: 'config',
+                duration: 0,
+                category: 'config',
+                targetDate: new Date().toISOString().split('T')[0],
+                completed: false
+            };
+
+            // Mirror config payload locally
+            const localData = getLocalDataAll();
+            const configExists = localData.some(item => item.id === configId);
+            
+            // Overwrite or push
+            const localTasks = localStorage.getItem(STORAGE_KEY_TASKS);
+            let parsed = localTasks ? JSON.parse(localTasks) : [];
+            const index = parsed.findIndex(t => t.id === configId);
+            if (index !== -1) {
+                parsed[index] = payload;
+            } else {
+                parsed.push(payload);
+            }
+            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(parsed));
+
+            // Sync to sheets asynchronously in background
+            if (webAppUrl) {
+                const actionType = configExists ? 'update' : 'create';
+                try {
+                    await fetch(webAppUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: actionType, ...payload })
+                    });
+                } catch (error) {
+                    console.error("Gagal sinkronisasi data config ke Spreadsheet", error);
+                }
+            }
+        }
+
+        // Save App Security Configuration
+        async function saveSecuritySettings() {
+            const pinVal = document.getElementById('input-new-pin').value.trim();
+            const confirmVal = document.getElementById('input-confirm-pin').value.trim();
+            const durationVal = parseInt(document.getElementById('input-session-duration').value);
+
+            showShimmer(true);
+
+            // Handle optional PIN modification
+            if (pinVal || confirmVal) {
+                if (pinVal.length !== 4 || isNaN(pinVal)) {
+                    showShimmer(false);
+                    showToast("Format PIN Salah", "PIN baru harus terdiri dari 4 digit angka.", "warning");
+                    return;
+                }
+
+                if (pinVal !== confirmVal) {
+                    showShimmer(false);
+                    showToast("Konfirmasi Tidak Cocok", "Konfirmasi PIN tidak sesuai dengan PIN baru.", "warning");
+                    return;
+                }
+
+                currentPin = pinVal;
+                localStorage.setItem(STORAGE_KEY_PIN, pinVal);
+                await saveConfigToSpreadsheet('cfg_pin', pinVal);
+                showToast("PIN Berhasil Diperbarui!", "Sistem keamanan PIN telah ditingkatkan.", "success");
+            }
+
+            // Save Session timeout configuration
+            sessionDuration = durationVal;
+            localStorage.setItem(STORAGE_KEY_SESSION_DURATION, durationVal);
+            await saveConfigToSpreadsheet('cfg_session_duration', durationVal.toString());
+
+            showShimmer(false);
+            
+            const durationText = durationVal === 999999 ? 'tanpa kunci otomatis' : `${durationVal} menit`;
+            showToast("Pengaturan Disimpan!", `Durasi sesi berhasil diatur menjadi ${durationText}.`, "success");
+
+            // Reset inputs
+            document.getElementById('input-new-pin').value = '';
+            document.getElementById('input-confirm-pin').value = '';
+            closeAppSettingsModal();
+        }
+
+        // Save App Banner Wordings Configuration
+        async function saveBannerConfig() {
+            const titleVal = document.getElementById('input-banner-title').value.trim();
+            const subtitleVal = document.getElementById('input-banner-subtitle').value.trim();
+
+            if (!titleVal || !subtitleVal) {
+                showToast("Kolom Kosong", "Judul dan subjudul banner tidak boleh dibiarkan kosong.", "warning");
+                return;
+            }
+
+            bannerTitle = titleVal;
+            bannerSubtitle = subtitleVal;
+
+            localStorage.setItem(STORAGE_KEY_BANNER_TITLE, titleVal);
+            localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, subtitleVal);
+
+            // Instantly update screen
+            updateBannerUI();
+
+            showShimmer(true);
+            await saveConfigToSpreadsheet('cfg_banner_title', titleVal);
+            await saveConfigToSpreadsheet('cfg_banner_subtitle', subtitleVal);
+            showShimmer(false);
+
+            showToast("Banner Diperbarui!", "Perubahan teks banner sambutan berhasil disimpan.", "success");
+            closeAppSettingsModal();
         }
     </script>
 </body>
