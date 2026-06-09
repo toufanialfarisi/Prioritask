@@ -137,8 +137,13 @@
                 </button>
 
                 <!-- Help/Settings Button -->
-                <button onclick="openAppSettingsModal()" class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center hover:bg-brand-600 shadow-md shadow-brand-500/10 hover:shadow-brand-500/30 transition-all duration-200" title="Pengaturan PIN & Banner">
+                <button onclick="openAppSettingsModal()" class="w-10 h-10 rounded-xl border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all duration-200" title="Pengaturan PIN & Banner">
                     <i class="fa-solid fa-gear"></i>
+                </button>
+
+                <!-- Logout / Lock Button -->
+                <button onclick="logout()" class="w-10 h-10 rounded-xl border border-rose-200 dark:border-rose-950/30 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 flex items-center justify-center transition-all duration-200" title="Kunci Aplikasi / Keluar">
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
@@ -1435,6 +1440,17 @@ function doPost(e) {
             const lockScreen = document.getElementById('pin-lock-screen');
             lockScreen.classList.remove('opacity-0', 'pointer-events-none');
             showToast("Aplikasi Terkunci", "PIN diminta kembali demi menjaga privasi data pengerjaan.", "info");
+        }
+
+        // Logout Action (Manual Force Lock)
+        function logout() {
+            appLocked = true;
+            enteredPin = '';
+            updatePinDots();
+            
+            const lockScreen = document.getElementById('pin-lock-screen');
+            lockScreen.classList.remove('opacity-0', 'pointer-events-none');
+            showToast("Sesi Berakhir", "Aplikasi berhasil dikunci. Masukkan PIN untuk kembali bekerja.", "info");
         }
 
         function initKeyboardPin() {
