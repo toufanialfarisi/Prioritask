@@ -461,66 +461,96 @@
                                 </button>
                             </div>
                             <pre class="bg-slate-900 text-slate-300 text-[11px] p-3 rounded-xl overflow-x-auto max-h-40 font-mono cursor-pointer border border-slate-800" id="script-code-block" onclick="selectText('script-code-block')" title="Klik untuk menyorot manual">
+                                /**
+ * PRIORITASK PREMIUM - GOOGLE APPS SCRIPT WEB APP ENGINE
+ * * PENTING:
+ * Tempel kode ini di jendela "Apps Script" yang dibuka dari menu "Ekstensi" Spreadsheet Anda.
+ * Jika Anda menggunakan Script Standalone (tidak terikat), masukkan ID Spreadsheet Anda pada variabel SPREADSHEET_ID di bawah.
+ */
+
+var SPREADSHEET_ID = ""; // BIARKAN KOSONG jika Script dibuat dari menu Ekstensi -> Apps Script.
+
+function getSpreadsheet() {
+  if (SPREADSHEET_ID && SPREADSHEET_ID.trim() !== "") {
+    return SpreadsheetApp.openById(SPREADSHEET_ID);
+  }
+  return SpreadsheetApp.getActiveSpreadsheet();
+}
+
 function doGet() {
-  return HtmlService.createHtmlOutput("Ready");
+  return HtmlService.createHtmlOutput("Prioritask Cloud Engine Ready.");
 }
 
 function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var ss = getSpreadsheet();
+  if (!ss) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error", 
+      message: "Spreadsheet tidak ditemukan. Pastikan script ini dibuat melalui menu Ekstensi -> Apps Script di dalam Spreadsheet Anda, atau isi SPREADSHEET_ID."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var sheet = ss.getActiveSheet();
   var params = JSON.parse(e.postData.contents);
   var action = params.action;
   
-  // Ambil atau buat header jika sheet kosong
+  // Buat header otomatis jika sheet baru/kosong
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(["ID", "Title", "Priority", "Tags", "Duration", "Target Pengerjaan", "Completed", "Timestamp"]);
   }
 
   if (action === "sync") {
-    // Bersihkan sheet (kecuali header) dan tulis semua data
     var headers = ["ID", "Title", "Priority", "Tags", "Duration", "Target Pengerjaan", "Completed", "Timestamp"];
     sheet.clearContents();
     sheet.appendRow(headers);
     
     var tasks = params.data;
-    for (var i = 0; i < tasks.length; i++) {
-      var t = tasks[i];
-      sheet.appendRow([
-        t.id, 
-        t.title, 
-        t.priority, 
-        t.tags.join(", "), 
-        t.duration, 
-        t.reminder, 
-        t.completed ? "TRUE" : "FALSE",
-        new Date().toISOString()
-      ]);
+    if (tasks && tasks.length > 0) {
+      for (var i = 0; i < tasks.length; i++) {
+        var t = tasks[i];
+        sheet.appendRow([
+          t.id, 
+          t.title, 
+          t.priority, 
+          t.tags ? t.tags.join(", ") : "", 
+          t.duration || "Tidak ada", 
+          t.reminder || "", 
+          t.completed ? "TRUE" : "FALSE",
+          new Date().toISOString()
+        ]);
+      }
     }
-    return ContentService.createTextOutput(JSON.stringify({status: "success", count: tasks.length}))
+    return ContentService.createTextOutput(JSON.stringify({status: "success", count: tasks ? tasks.length : 0}))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
   if (action === "read") {
     var data = [];
     var rows = sheet.getDataRange().getValues();
-    for (var i = 1; i < rows.length; i++) {
-      var r = rows[i];
-      data.push({
-        id: r[0],
-        title: r[1],
-        priority: r[2],
-        tags: r[3] ? r[3].split(",").map(function(item) { return item.trim(); }) : [],
-        duration: r[4],
-        reminder: r[5],
-        completed: r[6] === "TRUE"
-      });
+    // Ambil data jika ada selain baris header (baris index 0)
+    if (rows.length > 1) {
+      for (var i = 1; i < rows.length; i++) {
+        var r = rows[i];
+        if (!r[0]) continue; // Lewati baris kosong
+        data.push({
+          id: r[0],
+          title: r[1],
+          priority: r[2],
+          tags: r[3] ? r[3].toString().split(",").map(function(item) { return item.trim(); }) : [],
+          duration: r[4] || "Tidak ada",
+          reminder: r[5] || "",
+          completed: r[6] === "TRUE" || r[6] === true
+        });
+      }
     }
     return ContentService.createTextOutput(JSON.stringify({status: "success", data: data}))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  return ContentService.createTextOutput(JSON.stringify({status: "error", message: "Action not found"}))
+  return ContentService.createTextOutput(JSON.stringify({status: "error", message: "Aksi tidak dikenali"}))
     .setMimeType(ContentService.MimeType.JSON);
-}</pre>
+}
+                            </pre>
                         </div>
 
                     </div>
