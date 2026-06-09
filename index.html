@@ -319,7 +319,9 @@
                         <span class="text-xs text-slate-400 dark:text-zinc-500" id="task-showing-count">Menampilkan 0 tugas</span>
                     </div>
 
-                    <div id="task-list-element" class="task-list-container max-h-[500px] overflow-y-auto space-y-4 pr-1 scroll-smooth">
+                    <!-- Dynamic Task List (Extends vertically without internal scrollbar) -->
+                    <div id="task-list-element" class="task-list-container space-y-4 scroll-smooth">
+                        <!-- Shimmer Placeholders on Load -->
                         <div class="task-shimmer space-y-4">
                             <div class="p-5 border border-slate-200 dark:border-zinc-700 rounded-2xl shimmer h-24"></div>
                             <div class="p-5 border border-slate-200 dark:border-zinc-700 rounded-2xl shimmer h-24"></div>
@@ -334,7 +336,7 @@
 
     <!-- Modal 1: Google Spreadsheet Connection & Guide -->
     <div id="database-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
-        <div class="bg-white dark:bg-zinc-800 rounded-3xl border border-slate-200 dark:border-zinc-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl flex flex-col transition-all duration-300">
+        <div class="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 rounded-3xl shadow-2xl flex flex-col transition-all duration-300">
             <!-- Modal Header -->
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-700 pb-4 mb-6">
                 <div class="flex items-center gap-3">
