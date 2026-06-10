@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prioritask - Kelola Tugas Premium & Produktif</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS CDN Loaded First -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS Configuration defined AFTER CDN is loaded to prevent overwrite & ReferenceError -->
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -22,7 +23,7 @@
                     }
                 }
             }
-        }
+        };
     </script>
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -62,6 +63,21 @@
         }
         .dark .task-list-container::-webkit-scrollbar-thumb {
             background: #475569;
+        }
+        
+        /* Keyframe entrance cascade */
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .card-animate-in {
+            animation: cardEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     </style>
 </head>
@@ -1126,12 +1142,10 @@ function doPost(e) {
                 if (timerElements.length === 0) return;
 
                 timerElements.forEach(el => {
-                    const targetStr = el.getAttribute('data-target-date');
+                    const deadlineMs = parseInt(el.getAttribute('data-deadline'));
                     const taskId = el.getAttribute('data-task-id');
-                    
-                    const deadline = new Date(targetStr + 'T23:59:59');
-                    const now = new Date();
-                    const diff = deadline - now;
+                    const now = Date.now();
+                    const diff = deadlineMs - now;
 
                     if (diff <= 0) {
                         el.innerHTML = `<span class="text-rose-500 font-extrabold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation animate-bounce"></i> Waktu Habis!</span>`;
@@ -1140,16 +1154,12 @@ function doPost(e) {
                             container.className = "flex items-center gap-1.5 text-[11px] bg-rose-50 dark:bg-rose-950/20 px-2.5 py-1 rounded-xl text-rose-500 border border-rose-200/50 dark:border-rose-900/30 ml-auto transition-all";
                         }
                     } else {
-                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        // Calculate precise hours, minutes, and seconds remaining of the duration
+                        const hours = Math.floor(diff / (1000 * 60 * 60));
                         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-                        let outputStr = "";
-                        if (days > 0) {
-                            outputStr += `<span class="font-extrabold text-brand-600 dark:text-brand-400">${days}</span>d `;
-                        }
-                        outputStr += `<span class="font-extrabold text-brand-600 dark:text-brand-400">${String(hours).padStart(2, '0')}</span>j ` +
+                        let outputStr = `<span class="font-extrabold text-brand-600 dark:text-brand-400">${String(hours).padStart(2, '0')}</span>j ` +
                                     `<span class="font-extrabold text-brand-600 dark:text-brand-400">${String(minutes).padStart(2, '0')}</span>m ` +
                                     `<span class="font-extrabold text-brand-600 dark:text-brand-400">${String(seconds).padStart(2, '0')}</span>d`;
 
@@ -1196,7 +1206,7 @@ function doPost(e) {
             }
 
             listContainer.innerHTML = '';
-            filtered.forEach(task => {
+            filtered.forEach((task, index) => {
                 let priorityColor = '';
                 let priorityLabel = '';
                 if (task.priority === 'Tinggi') {
@@ -1220,8 +1230,20 @@ function doPost(e) {
                     ? 'opacity-70 bg-slate-50/50 dark:bg-zinc-800/40 border-slate-200 dark:border-zinc-700' 
                     : 'bg-white dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 hover:shadow-md hover:-translate-y-0.5';
 
+                // Extract or default creation time from unique task ID
+                let createdAt = Date.now();
+                if (task.id && task.id.startsWith('id-')) {
+                    const idParts = task.id.split('-');
+                    if (idParts[1] && !isNaN(idParts[1])) {
+                        createdAt = parseInt(idParts[1]);
+                    }
+                }
+                const deadlineTimestamp = createdAt + (task.duration * 60 * 60 * 1000);
+
+                const delayStyle = `animation-delay: ${index * 60}ms;`;
+
                 const cardHtml = `
-                    <div id="task-card-${task.id}" class="p-5 border rounded-2xl flex items-start gap-4 transition-all duration-300 ${cardStyle}">
+                    <div id="task-card-${task.id}" style="${delayStyle}" class="p-5 border rounded-2xl flex items-start gap-4 transition-all duration-300 card-animate-in ${cardStyle}">
                         <button onclick="toggleTaskComplete('${task.id}')" class="mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${task.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 dark:border-zinc-500 hover:border-brand-500 dark:hover:border-brand-400'}">
                             ${task.completed ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
                         </button>
@@ -1238,7 +1260,7 @@ function doPost(e) {
                                 ${!task.completed ? `
                                     <div id="countdown-badge-${task.id}" class="flex items-center gap-1.5 text-[11px] bg-slate-100 dark:bg-zinc-900 px-2.5 py-0.5 rounded-lg text-slate-600 dark:text-zinc-400 border border-slate-200/30 dark:border-zinc-700/50 ml-auto transition-all font-semibold">
                                         <i class="fa-solid fa-stopwatch animate-pulse text-brand-500"></i>
-                                        <span class="task-countdown-element font-semibold tracking-tight" data-task-id="${task.id}" data-target-date="${task.targetDate}">Menghitung...</span>
+                                        <span class="task-countdown-element font-semibold tracking-tight" data-task-id="${task.id}" data-deadline="${deadlineTimestamp}">Menghitung...</span>
                                     </div>
                                 ` : `
                                     <div class="flex items-center gap-1.5 text-[11px] bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-0.5 rounded-lg text-emerald-600 dark:text-emerald-400 border border-emerald-100/20 dark:border-emerald-900/20 ml-auto font-extrabold">
@@ -1390,6 +1412,7 @@ function doPost(e) {
             }
         }
 
+        // Handle physical keyboard backspace
         function backspacePin() {
             if (enteredPin.length > 0) {
                 enteredPin = enteredPin.slice(0, -1);
@@ -1476,11 +1499,14 @@ function doPost(e) {
                 }
             };
 
+            // Register interactions to reset activity timer
             window.addEventListener('mousemove', resetTimer);
             window.addEventListener('keypress', resetTimer);
             window.addEventListener('click', resetTimer);
             window.addEventListener('touchstart', resetTimer);
+            window.addEventListener('scroll', resetTimer);
 
+            // Watchdog loop
             setInterval(() => {
                 if (!appLocked) {
                     const elapsed = Date.now() - lastActivityTime;
@@ -1489,7 +1515,7 @@ function doPost(e) {
                         lockApp();
                     }
                 }
-            }, 10000); // Check inactivity every 10 seconds
+            }, 1000); 
         }
 
         // Core Helper to Save App Configurations (PIN, Session, Banner) safely into Spreadsheet
@@ -1504,11 +1530,9 @@ function doPost(e) {
                 completed: false
             };
 
-            // Mirror config payload locally
             const localData = getLocalDataAll();
             const configExists = localData.some(item => item.id === configId);
             
-            // Overwrite or push
             const localTasks = localStorage.getItem(STORAGE_KEY_TASKS);
             let parsed = localTasks ? JSON.parse(localTasks) : [];
             const index = parsed.findIndex(t => t.id === configId);
@@ -1519,7 +1543,6 @@ function doPost(e) {
             }
             localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(parsed));
 
-            // Sync to sheets asynchronously in background
             if (webAppUrl) {
                 const actionType = configExists ? 'update' : 'create';
                 try {
@@ -1543,7 +1566,6 @@ function doPost(e) {
 
             showShimmer(true);
 
-            // Handle optional PIN modification
             if (pinVal || confirmVal) {
                 if (pinVal.length !== 4 || isNaN(pinVal)) {
                     showShimmer(false);
@@ -1563,7 +1585,6 @@ function doPost(e) {
                 showToast("PIN Berhasil Diperbarui!", "Sistem keamanan PIN telah ditingkatkan.", "success");
             }
 
-            // Save Session timeout configuration
             sessionDuration = durationVal;
             localStorage.setItem(STORAGE_KEY_SESSION_DURATION, durationVal);
             await saveConfigToSpreadsheet('cfg_session_duration', durationVal.toString());
@@ -1573,7 +1594,6 @@ function doPost(e) {
             const durationText = durationVal === 999999 ? 'tanpa kunci otomatis' : `${durationVal} menit`;
             showToast("Pengaturan Disimpan!", `Durasi sesi berhasil diatur menjadi ${durationText}.`, "success");
 
-            // Reset inputs
             document.getElementById('input-new-pin').value = '';
             document.getElementById('input-confirm-pin').value = '';
             closeAppSettingsModal();
@@ -1595,7 +1615,6 @@ function doPost(e) {
             localStorage.setItem(STORAGE_KEY_BANNER_TITLE, titleVal);
             localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, subtitleVal);
 
-            // Instantly update screen
             updateBannerUI();
 
             showShimmer(true);
