@@ -79,6 +79,21 @@
         .card-animate-in {
             animation: cardEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
+        /* Glowing border animation for active working task */
+        @keyframes pulseBorder {
+            0%, 100% { 
+                border-color: rgba(99, 102, 241, 0.5); 
+                box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.12);
+            }
+            50% { 
+                border-color: rgba(99, 102, 241, 0.9); 
+                box-shadow: 0 4px 20px 2px rgba(99, 102, 241, 0.25);
+            }
+        }
+        .border-pulse-active {
+            animation: pulseBorder 2s infinite ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-zinc-950 text-slate-800 dark:text-zinc-100 min-h-screen transition-colors duration-300">
@@ -263,9 +278,9 @@
                         <div>
                             <div class="flex justify-between items-center mb-2">
                                 <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Estimasi Durasi</label>
-                                <span class="text-sm font-bold text-brand-500 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/50 px-2.5 py-1 rounded-lg" id="duration-display">8 Jam</span>
+                                <span class="text-sm font-bold text-brand-500 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/50 px-2.5 py-1 rounded-lg" id="duration-display">1 Jam</span>
                             </div>
-                            <input type="range" id="task-duration" min="1" max="24" value="8" oninput="updateDurationDisplay(this.value)" class="w-full h-2 bg-slate-200 dark:bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-brand-500">
+                            <input type="range" id="task-duration" min="1" max="24" value="1" oninput="updateDurationDisplay(this.value)" class="w-full h-2 bg-slate-200 dark:bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-brand-500">
                             <div class="flex justify-between text-[10px] text-slate-400 mt-1">
                                 <span>1 Jam</span>
                                 <span>12 Jam</span>
@@ -635,6 +650,7 @@ function doPost(e) {
         const STORAGE_KEY_SESSION_DURATION = 'prioritask_session_duration';
         const STORAGE_KEY_BANNER_TITLE = 'prioritask_banner_title';
         const STORAGE_KEY_BANNER_SUBTITLE = 'prioritask_banner_subtitle';
+        const STORAGE_KEY_IN_PROGRESS_IDS = 'prioritask_inprogress_ids';
 
         // Initial Setup on DOM Loaded
         window.addEventListener('DOMContentLoaded', () => {
@@ -833,6 +849,12 @@ function doPost(e) {
             const configRows = fetchedData.filter(item => item.id.startsWith('cfg_'));
             tasks = fetchedData.filter(item => !item.id.startsWith('cfg_'));
 
+            // Map and load the device-specific 'In Progress' states dynamically
+            const inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
+            tasks.forEach(task => {
+                task.inProgress = inProgressIds.includes(task.id) && !task.completed;
+            });
+
             // Parse existing configs
             const pinConfig = configRows.find(c => c.id === 'cfg_pin');
             if (pinConfig) {
@@ -931,7 +953,8 @@ function doPost(e) {
                 duration,
                 category,
                 targetDate,
-                completed: false
+                completed: false,
+                inProgress: false
             };
 
             const isEditOperation = !!id;
@@ -952,6 +975,7 @@ function doPost(e) {
                         const index = tasks.findIndex(t => t.id === id);
                         if (index !== -1) {
                             taskPayload.completed = tasks[index].completed;
+                            taskPayload.inProgress = tasks[index].inProgress;
                             tasks[index] = taskPayload;
                         }
                     } else {
@@ -966,6 +990,7 @@ function doPost(e) {
                     const index = tasks.findIndex(t => t.id === id);
                     if (index !== -1) {
                         taskPayload.completed = tasks[index].completed;
+                        taskPayload.inProgress = tasks[index].inProgress;
                         tasks[index] = taskPayload;
                     }
                 } else {
@@ -996,6 +1021,42 @@ function doPost(e) {
             }, 300);
         }
 
+        // Toggle Task In Progress / Active Working state
+        function toggleTaskInProgress(id) {
+            const index = tasks.findIndex(t => t.id === id);
+            if (index === -1) return;
+
+            const newState = !tasks[index].inProgress;
+            tasks[index].inProgress = newState;
+
+            // Ensure completed task status is reset if starting work
+            if (newState) {
+                tasks[index].completed = false;
+            }
+
+            // Sync with device active state local store
+            let inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
+            if (newState) {
+                if (!inProgressIds.includes(id)) {
+                    inProgressIds.push(id);
+                }
+            } else {
+                inProgressIds = inProgressIds.filter(item => item !== id);
+            }
+            localStorage.setItem(STORAGE_KEY_IN_PROGRESS_IDS, JSON.stringify(inProgressIds));
+
+            saveLocalTasks();
+
+            if (newState) {
+                showToast('Tugas Dimulai! ⚡', `Mulai mengerjakan "${tasks[index].title.substring(0, 30)}...". Fokus dan semangat!`, 'info');
+            } else {
+                showToast('Tugas Dijeda ⏸️', `Pengerjaan tugas "${tasks[index].title.substring(0, 30)}..." ditangguhkan sementara.`, 'info');
+            }
+
+            filterAndRenderTasks();
+            updateStatistics();
+        }
+
         // Toggle Task Completion State (Checkbox)
         async function toggleTaskComplete(id) {
             const index = tasks.findIndex(t => t.id === id);
@@ -1003,6 +1064,14 @@ function doPost(e) {
 
             const isDoneNow = !tasks[index].completed;
             tasks[index].completed = isDoneNow;
+
+            // Clear 'In Progress' states dynamically upon completion
+            if (isDoneNow) {
+                tasks[index].inProgress = false;
+                let inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
+                inProgressIds = inProgressIds.filter(item => item !== id);
+                localStorage.setItem(STORAGE_KEY_IN_PROGRESS_IDS, JSON.stringify(inProgressIds));
+            }
 
             if (isDoneNow) {
                 confetti({
@@ -1045,6 +1114,12 @@ function doPost(e) {
             }
             
             tasks = tasks.filter(t => t.id !== id);
+            
+            // Clean up device active states
+            let inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
+            inProgressIds = inProgressIds.filter(item => item !== id);
+            localStorage.setItem(STORAGE_KEY_IN_PROGRESS_IDS, JSON.stringify(inProgressIds));
+
             saveLocalTasks();
             
             showToast('Tugas Terhapus!', `Tugas "${title.substring(0, 25)}..." telah sukses dibuang dari daftar.`, 'warning');
@@ -1092,8 +1167,8 @@ function doPost(e) {
             document.getElementById('task-id').value = '';
             document.getElementById('task-title').value = '';
             document.getElementById('task-priority').value = 'Sedang';
-            document.getElementById('task-duration').value = '8';
-            updateDurationDisplay(8);
+            document.getElementById('task-duration').value = '1';
+            updateDurationDisplay(1);
 
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('task-target-date').value = today;
@@ -1226,9 +1301,16 @@ function doPost(e) {
                 const targetFormatted = task.targetDate ? formatDateString(task.targetDate) : '-';
 
                 const titleStyle = task.completed ? 'line-through text-slate-400 dark:text-zinc-500 font-medium' : 'font-semibold';
-                const cardStyle = task.completed 
-                    ? 'opacity-70 bg-slate-50/50 dark:bg-zinc-800/40 border-slate-200 dark:border-zinc-700' 
-                    : 'bg-white dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 hover:shadow-md hover:-translate-y-0.5';
+                
+                // Card layout based on completed or in-progress states
+                let cardStyle = '';
+                if (task.completed) {
+                    cardStyle = 'opacity-70 bg-slate-50/50 dark:bg-zinc-800/40 border-slate-200 dark:border-zinc-700';
+                } else if (task.inProgress) {
+                    cardStyle = 'bg-white dark:bg-zinc-800 border-brand-500 dark:border-brand-500 border-pulse-active';
+                } else {
+                    cardStyle = 'bg-white dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 hover:shadow-md hover:-translate-y-0.5';
+                }
 
                 // Extract or default creation time from unique task ID
                 let createdAt = Date.now();
@@ -1257,9 +1339,15 @@ function doPost(e) {
                                     <i class="fa-solid ${catIcon}"></i>
                                     ${task.category}
                                 </span>
+                                ${task.inProgress && !task.completed ? `
+                                    <span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/30 animate-pulse">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                                        ⚡ Sedang Dikerjakan
+                                    </span>
+                                ` : ''}
                                 ${!task.completed ? `
                                     <div id="countdown-badge-${task.id}" class="flex items-center gap-1.5 text-[11px] bg-slate-100 dark:bg-zinc-900 px-2.5 py-0.5 rounded-lg text-slate-600 dark:text-zinc-400 border border-slate-200/30 dark:border-zinc-700/50 ml-auto transition-all font-semibold">
-                                        <i class="fa-solid fa-stopwatch animate-pulse text-brand-500"></i>
+                                        <i class="fa-solid fa-stopwatch ${task.inProgress ? 'animate-spin text-amber-500' : 'animate-pulse text-brand-500'}"></i>
                                         <span class="task-countdown-element font-semibold tracking-tight" data-task-id="${task.id}" data-deadline="${deadlineTimestamp}">Menghitung...</span>
                                     </div>
                                 ` : `
@@ -1287,6 +1375,11 @@ function doPost(e) {
                         </div>
 
                         <div class="flex flex-col gap-1.5">
+                            ${!task.completed ? `
+                                <button onclick="toggleTaskInProgress('${task.id}')" class="w-8 h-8 rounded-xl bg-slate-50 dark:bg-zinc-700/80 text-slate-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:text-amber-500 flex items-center justify-center transition-all" title="${task.inProgress ? 'Jeda Pengerjaan' : 'Mulai Kerja'}">
+                                    <i class="fa-solid ${task.inProgress ? 'fa-pause text-amber-500 animate-pulse' : 'fa-play'} text-xs"></i>
+                                </button>
+                            ` : ''}
                             <button onclick="editTask('${task.id}')" class="w-8 h-8 rounded-xl bg-slate-50 dark:bg-zinc-700/80 text-slate-500 hover:bg-brand-50 dark:hover:bg-brand-950/20 hover:text-brand-500 flex items-center justify-center transition-all" title="Edit Tugas">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                             </button>
@@ -1446,6 +1539,7 @@ function doPost(e) {
             }
         }
 
+        // Access Unlock Handler
         function unlockApp() {
             appLocked = false;
             enteredPin = '';
