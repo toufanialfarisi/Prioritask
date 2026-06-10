@@ -14,12 +14,15 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
+                            50: 'var(--color-brand-50)',
+                            100: 'var(--color-brand-100)',
+                            500: 'var(--color-brand-500)',
+                            600: 'var(--color-brand-600)',
+                            700: 'var(--color-brand-700)',
                         },
+                        accent: {
+                            500: 'var(--color-accent-500)',
+                        }
                     }
                 }
             }
@@ -32,6 +35,16 @@
     <!-- Canvas Confetti for Celebration -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+        /* Base Dynamic Token Defaults using CSS variables for live accent customizability */
+        :root {
+            --color-brand-50: #eef2ff;
+            --color-brand-100: #e0e7ff;
+            --color-brand-500: #6366f1;
+            --color-brand-600: #4f46e5;
+            --color-brand-700: #4338ca;
+            --color-accent-500: #4f46e5;
+        }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
@@ -83,12 +96,12 @@
         /* Glowing border animation for active working task */
         @keyframes pulseBorder {
             0%, 100% { 
-                border-color: rgba(99, 102, 241, 0.5); 
-                box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.12);
+                border-color: rgba(var(--color-brand-500), 0.5); 
+                box-shadow: 0 4px 12px -2px rgba(var(--color-brand-500), 0.12);
             }
             50% { 
-                border-color: rgba(99, 102, 241, 0.9); 
-                box-shadow: 0 4px 20px 2px rgba(99, 102, 241, 0.25);
+                border-color: rgba(var(--color-brand-500), 0.9); 
+                box-shadow: 0 4px 20px 2px rgba(var(--color-brand-500), 0.25);
             }
         }
         .border-pulse-active {
@@ -103,7 +116,7 @@
         <div class="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700/60 p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center space-y-6">
             <!-- Security Header -->
             <div class="flex flex-col items-center gap-2">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
                     <i class="fa-solid fa-lock text-xl"></i>
                 </div>
                 <h2 class="text-xl font-bold">Aplikasi Terkunci</h2>
@@ -143,38 +156,38 @@
 
     <!-- Header Navigation -->
     <header class="sticky top-0 z-40 backdrop-blur-md bg-white/70 dark:bg-zinc-800/70 border-b border-slate-200 dark:border-zinc-700 transition-colors duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
-                    <i class="fa-solid fa-square-check text-xl"></i>
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div id="app-logo-container" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-accent-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                    <i id="app-logo-icon" class="fa-solid fa-square-check text-lg sm:text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-brand-600 to-indigo-500 dark:from-brand-400 dark:to-indigo-300 bg-clip-text text-transparent">Prioritask</h1>
-                    <span class="text-xs text-slate-400 dark:text-zinc-500 font-medium">Sistem Manajemen Tugas Premium</span>
+                    <h1 class="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-brand-600 to-accent-500 bg-clip-text text-transparent">Prioritask</h1>
                 </div>
             </div>
 
             <!-- Header Action Controls -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1.5 sm:gap-3">
                 <!-- Mode Status (Sheets vs Local) -->
-                <button onclick="openDatabaseModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-300" id="db-status-badge">
-                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" id="db-status-dot"></span>
-                    <span id="db-status-text">Memeriksa Database...</span>
+                <button onclick="openDatabaseModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold border border-slate-200 dark:border-zinc-700 transition-all duration-300" id="db-status-badge">
+                    <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 animate-pulse" id="db-status-dot"></span>
+                    <span id="db-status-text" class="hidden md:inline">Memeriksa Database...</span>
+                    <i class="fa-solid fa-database md:hidden text-slate-500 dark:text-zinc-400"></i>
                 </button>
 
                 <!-- Dark/Light Toggle -->
-                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all duration-200" title="Ganti Tema">
-                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                <button onclick="toggleDarkMode()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all duration-200" title="Ganti Tema">
+                    <i id="theme-icon" class="fa-solid fa-moon text-sm sm:text-base"></i>
                 </button>
 
                 <!-- Help/Settings Button -->
-                <button onclick="openAppSettingsModal()" class="w-10 h-10 rounded-xl border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all duration-200" title="Pengaturan PIN & Banner">
-                    <i class="fa-solid fa-gear"></i>
+                <button onclick="openAppSettingsModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all duration-200" title="Pengaturan PIN & Banner">
+                    <i class="fa-solid fa-gear text-sm sm:text-base"></i>
                 </button>
 
                 <!-- Logout / Lock Button -->
-                <button onclick="logout()" class="w-10 h-10 rounded-xl border border-rose-200 dark:border-rose-950/30 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 flex items-center justify-center transition-all duration-200" title="Kunci Aplikasi / Keluar">
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                <button onclick="logout()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-rose-200 dark:border-rose-950/30 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 flex items-center justify-center transition-all duration-200" title="Kunci Aplikasi / Keluar">
+                    <i class="fa-solid fa-right-from-bracket text-sm sm:text-base"></i>
                 </button>
             </div>
         </div>
@@ -190,7 +203,7 @@
             <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
                 
                 <!-- Dynamic Welcome Banner -->
-                <div class="p-6 rounded-3xl bg-gradient-to-br from-brand-600 to-indigo-800 text-white relative overflow-hidden shadow-xl shadow-brand-500/10">
+                <div class="p-6 rounded-3xl bg-gradient-to-br from-brand-600 to-accent-500 text-white relative overflow-hidden shadow-xl shadow-brand-500/10">
                     <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                     <div class="relative z-10">
                         <h2 id="display-banner-title" class="text-xl font-bold mb-1">Halo Sahabat Produktif! 👋</h2>
@@ -226,7 +239,7 @@
                             <span class="text-brand-500 dark:text-brand-400" id="stat-progress-text">0%</span>
                         </div>
                         <div class="w-full h-2.5 bg-slate-100 dark:bg-zinc-900 rounded-full overflow-hidden">
-                            <div id="progress-bar" class="h-full bg-gradient-to-r from-brand-500 to-indigo-600 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                            <div id="progress-bar" class="h-full bg-gradient-to-r from-brand-500 to-accent-500 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -293,7 +306,7 @@
                             <input type="date" id="task-target-date" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm font-semibold">
                         </div>
 
-                        <button type="submit" class="w-full py-4 px-6 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-brand-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <button type="submit" class="w-full py-4 px-6 bg-gradient-to-r from-brand-600 to-accent-500 hover:from-brand-500 hover:to-accent-500 text-white font-bold rounded-2xl shadow-lg shadow-brand-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                             <i id="submit-btn-icon" class="fa-solid fa-plus-circle text-lg"></i>
                             <span id="submit-btn-text">Tambahkan Tugas</span>
                         </button>
@@ -507,8 +520,8 @@ function doPost(e) {
                 <button onclick="closeDatabaseModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
                     Tutup
                 </button>
-                <button onclick="saveDatabaseSettings()" class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/15 hover:bg-brand-600 active:scale-95 transition-all">
-                    Hubungkan Database
+                <button id="btn-save-database" onclick="saveDatabaseSettings()" class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/15 hover:bg-brand-600 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span id="text-save-database">Hubungkan Database</span>
                 </button>
             </div>
         </div>
@@ -520,7 +533,7 @@ function doPost(e) {
             <!-- Modal Header -->
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-700 pb-4 mb-5">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 text-white flex items-center justify-center text-xl shadow-lg shadow-brand-500/20">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-accent-500 text-white flex items-center justify-center text-xl shadow-lg shadow-brand-500/20">
                         <i class="fa-solid fa-gear"></i>
                     </div>
                     <div>
@@ -534,12 +547,15 @@ function doPost(e) {
             </div>
 
             <!-- Modal Tab Navigation -->
-            <div class="flex border-b border-slate-100 dark:border-zinc-700/80 mb-6">
-                <button onclick="switchAppSettingsTab('security')" id="set-tab-security" class="flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-2 transition-all">
-                    <i class="fa-solid fa-key text-amber-500"></i> Keamanan PIN & Sesi
+            <div class="flex border-b border-slate-100 dark:border-zinc-700/80 mb-6 overflow-x-auto">
+                <button onclick="switchAppSettingsTab('security')" id="set-tab-security" class="flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap">
+                    <i class="fa-solid fa-key text-amber-500"></i> Keamanan
                 </button>
-                <button onclick="switchAppSettingsTab('banner')" id="set-tab-banner" class="flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-2 transition-all">
-                    <i class="fa-solid fa-heading text-brand-500"></i> Kustomisasi Banner
+                <button onclick="switchAppSettingsTab('banner')" id="set-tab-banner" class="flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap">
+                    <i class="fa-solid fa-heading text-brand-500"></i> Banner
+                </button>
+                <button onclick="switchAppSettingsTab('appearance')" id="set-tab-appearance" class="flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap">
+                    <i class="fa-solid fa-palette text-emerald-500"></i> Tampilan
                 </button>
             </div>
 
@@ -579,9 +595,9 @@ function doPost(e) {
                         </select>
                     </div>
 
-                    <button onclick="saveSecuritySettings()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-lock-open"></i>
-                        <span>Simpan Setelan Keamanan</span>
+                    <button id="btn-save-security" onclick="saveSecuritySettings()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <i id="icon-save-security" class="fa-solid fa-lock-open"></i>
+                        <span id="text-save-security">Simpan Setelan Keamanan</span>
                     </button>
                 </div>
             </div>
@@ -606,9 +622,164 @@ function doPost(e) {
                         <textarea id="input-banner-subtitle" rows="3" placeholder="Mari selesaikan rencana tugas..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all resize-none"></textarea>
                     </div>
 
-                    <button onclick="saveBannerConfig()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i>
-                        <span>Simpan Perubahan Banner</span>
+                    <button id="btn-save-banner" onclick="saveBannerConfig()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <i id="icon-save-banner" class="fa-solid fa-floppy-disk"></i>
+                        <span id="text-save-banner">Simpan Perubahan Banner</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content 3: Appearance & Logo -->
+            <div id="settings-content-appearance" class="hidden space-y-6">
+                <div class="bg-slate-50 dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-700/80 space-y-5">
+                    <h4 class="text-sm font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-2">
+                        <i class="fa-solid fa-palette text-emerald-500"></i>
+                        Kustomisasi Logo & Warna Dasar
+                    </h4>
+                    <p class="text-xs text-slate-400 dark:text-zinc-500 leading-relaxed">
+                        Atur warna utama dashboard (pilih preset atau kustom) dan pilih logo aplikasi agar sesuai dengan estetika pengerjaan Anda.
+                    </p>
+
+                    <!-- Base Color Selector -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-3 tracking-wider">Pilih Warna Dasar Aplikasi</label>
+                        <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                            <!-- Indigo (Default) -->
+                            <button onclick="setBaseColor('indigo')" id="color-opt-indigo" class="relative p-2.5 rounded-xl border-2 border-brand-500 bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
+                                <span class="w-5 h-5 rounded-full bg-indigo-500 shadow-sm"></span>
+                                <span class="text-[10px] font-bold">Indigo</span>
+                            </button>
+                            <!-- Emerald -->
+                            <button onclick="setBaseColor('emerald')" id="color-opt-emerald" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
+                                <span class="w-5 h-5 rounded-full bg-emerald-500 shadow-sm"></span>
+                                <span class="text-[10px] font-bold">Hijau</span>
+                            </button>
+                            <!-- Blue -->
+                            <button onclick="setBaseColor('blue')" id="color-opt-blue" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
+                                <span class="w-5 h-5 rounded-full bg-blue-500 shadow-sm"></span>
+                                <span class="text-[10px] font-bold">Biru</span>
+                            </button>
+                            <!-- Amber -->
+                            <button onclick="setBaseColor('amber')" id="color-opt-amber" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
+                                <span class="w-5 h-5 rounded-full bg-amber-500 shadow-sm"></span>
+                                <span class="text-[10px] font-bold">Oranye</span>
+                            </button>
+                            <!-- Rose -->
+                            <button onclick="setBaseColor('rose')" id="color-opt-rose" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
+                                <span class="w-5 h-5 rounded-full bg-rose-500 shadow-sm"></span>
+                                <span class="text-[10px] font-bold">Merah</span>
+                            </button>
+                            <!-- Violet -->
+                            <button onclick="setBaseColor('violet')" id="color-opt-violet" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
+                                <span class="w-5 h-5 rounded-full bg-violet-500 shadow-sm"></span>
+                                <span class="text-[10px] font-bold">Ungu</span>
+                            </button>
+                            <!-- Custom Color Picker Trigger Button -->
+                            <label id="color-opt-custom" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer">
+                                <input type="color" id="custom-color-picker" oninput="handleCustomColor(this.value)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                                <span id="custom-color-preview" class="w-5 h-5 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 shadow-sm border border-slate-200 dark:border-zinc-700"></span>
+                                <span class="text-[10px] font-bold">Kustom</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Logo Selector Presets -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Pilih Logo Aplikasi (Variasi Preset)</label>
+                            <span class="text-[10px] text-slate-400 font-semibold" id="logo-badge-preview">Preset Terpilih</span>
+                        </div>
+                        <div class="grid grid-cols-6 gap-2 bg-white dark:bg-zinc-900 p-3 rounded-2xl border border-slate-200/60 dark:border-zinc-700/60">
+                            <!-- Preset 1: Centang -->
+                            <button onclick="setAppLogo('fa-square-check')" id="logo-opt-fa-square-check" class="p-3 rounded-xl border-2 border-brand-500 bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Centang Box">
+                                <i class="fa-solid fa-square-check"></i>
+                            </button>
+                            <!-- Preset 2: Bintang -->
+                            <button onclick="setAppLogo('fa-star')" id="logo-opt-fa-star" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Bintang">
+                                <i class="fa-solid fa-star"></i>
+                            </button>
+                            <!-- Preset 3: Api -->
+                            <button onclick="setAppLogo('fa-fire')" id="logo-opt-fa-fire" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Api Fokus">
+                                <i class="fa-solid fa-fire"></i>
+                            </button>
+                            <!-- Preset 4: Roket -->
+                            <button onclick="setAppLogo('fa-rocket')" id="logo-opt-fa-rocket" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Roket">
+                                <i class="fa-solid fa-rocket"></i>
+                            </button>
+                            <!-- Preset 5: List Check -->
+                            <button onclick="setAppLogo('fa-list-check')" id="logo-opt-fa-list-check" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Daftar Centang">
+                                <i class="fa-solid fa-list-check"></i>
+                            </button>
+                            <!-- Preset 6: Petir -->
+                            <button onclick="setAppLogo('fa-bolt')" id="logo-opt-fa-bolt" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Kilat Produktivitas">
+                                <i class="fa-solid fa-bolt"></i>
+                            </button>
+                            <!-- Preset 7: Mahkota -->
+                            <button onclick="setAppLogo('fa-crown')" id="logo-opt-fa-crown" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Mahkota">
+                                <i class="fa-solid fa-crown"></i>
+                            </button>
+                            <!-- Preset 8: Seedling -->
+                            <button onclick="setAppLogo('fa-seedling')" id="logo-opt-fa-seedling" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Pertumbuhan">
+                                <i class="fa-solid fa-seedling"></i>
+                            </button>
+                            <!-- Preset 9: Koper -->
+                            <button onclick="setAppLogo('fa-briefcase')" id="logo-opt-fa-briefcase" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Koper">
+                                <i class="fa-solid fa-briefcase"></i>
+                            </button>
+                            <!-- Preset 10: Rumah -->
+                            <button onclick="setAppLogo('fa-house')" id="logo-opt-fa-house" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Home">
+                                <i class="fa-solid fa-house"></i>
+                            </button>
+                            <!-- Preset 11: Laptop -->
+                            <button onclick="setAppLogo('fa-laptop-code')" id="logo-opt-fa-laptop-code" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Ngoding">
+                                <i class="fa-solid fa-laptop-code"></i>
+                            </button>
+                            <!-- Preset 12: Toga -->
+                            <button onclick="setAppLogo('fa-graduation-cap')" id="logo-opt-fa-graduation-cap" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Belajar">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </button>
+                            <!-- Preset 13: Heart -->
+                            <button onclick="setAppLogo('fa-heart')" id="logo-opt-fa-heart" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Kesehatan">
+                                <i class="fa-solid fa-heart"></i>
+                            </button>
+                            <!-- Preset 14: Trophy -->
+                            <button onclick="setAppLogo('fa-trophy')" id="logo-opt-fa-trophy" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Prestasi">
+                                <i class="fa-solid fa-trophy"></i>
+                            </button>
+                            <!-- Preset 15: Bell -->
+                            <button onclick="setAppLogo('fa-bell')" id="logo-opt-fa-bell" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Notifikasi">
+                                <i class="fa-solid fa-bell"></i>
+                            </button>
+                            <!-- Preset 16: Kalender -->
+                            <button onclick="setAppLogo('fa-calendar-days')" id="logo-opt-fa-calendar-days" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Rencana">
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </button>
+                            <!-- Preset 17: Bullseye -->
+                            <button onclick="setAppLogo('fa-bullseye')" id="logo-opt-fa-bullseye" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Sasaran">
+                                <i class="fa-solid fa-bullseye"></i>
+                            </button>
+                            <!-- Preset 18: Lampu Ide -->
+                            <button onclick="setAppLogo('fa-lightbulb')" id="logo-opt-fa-lightbulb" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Ide Kreatif">
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Custom FontAwesome Input -->
+                    <div class="pt-1 border-t border-slate-100 dark:border-zinc-700/50">
+                        <label for="input-custom-logo" class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2 tracking-wider">Atau Gunakan Custom FontAwesome Class</label>
+                        <div class="flex gap-2">
+                            <span class="inline-flex items-center px-3.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-900 text-xs font-bold font-mono">fa-solid</span>
+                            <input type="text" id="input-custom-logo" oninput="handleCustomLogoInput(this.value)" placeholder="fa-gem" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all font-mono">
+                        </div>
+                        <p class="text-[10px] text-slate-400 dark:text-zinc-500 mt-2">
+                            Masukkan nama class ikon FontAwesome v6 (misalnya: <code class="font-mono bg-slate-100 dark:bg-zinc-900 px-1 py-0.5 rounded text-brand-500">fa-gem</code>, <code class="font-mono bg-slate-100 dark:bg-zinc-900 px-1 py-0.5 rounded text-brand-500">fa-coffee</code>, <code class="font-mono bg-slate-100 dark:bg-zinc-900 px-1 py-0.5 rounded text-brand-500">fa-brain</code>).
+                        </p>
+                    </div>
+
+                    <button id="btn-save-appearance" onclick="saveAppearanceSettings()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <i id="icon-save-appearance" class="fa-solid fa-circle-check"></i>
+                        <span id="text-save-appearance">Simpan Perubahan Tampilan</span>
                     </button>
                 </div>
             </div>
@@ -632,6 +803,49 @@ function doPost(e) {
         let isDarkMode = false;
         let webAppUrl = '';
         let countdownIntervalId = null;
+
+        // Custom Appearance States & Palettes
+        let selectedColor = 'indigo';
+        let selectedLogo = 'fa-square-check';
+
+        const COLOR_PALETTES = {
+            indigo: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', accent: '#4f46e5' },
+            emerald: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857', accent: '#059669' },
+            blue: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', accent: '#2563eb' },
+            amber: { 50: '#fffbeb', 100: '#fef3c7', 500: '#f59e0b', 600: '#d97706', 700: '#b45309', accent: '#d97706' },
+            rose: { 50: '#fff1f2', 100: '#ffe4e6', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c', accent: '#e11d48' },
+            violet: { 50: '#f5f3ff', 100: '#ede9fe', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', accent: '#7c3aed' }
+        };
+
+        // Hex to RGB color helper functions for dynamic kustom color calculation
+        function hexToRgb(hex) {
+            let h = hex.replace('#', '');
+            if (h.length === 3) {
+                h = h.split('').map(char => char + char).join('');
+            }
+            const r = parseInt(h.slice(0, 2), 16);
+            const g = parseInt(h.slice(2, 4), 16);
+            const b = parseInt(h.slice(4, 6), 16);
+            return { r, g, b };
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        // Blends custom color mathematically with white or black to create beautiful shades
+        function blendColor(hex, targetHex, percentage) {
+            try {
+                const c1 = hexToRgb(hex);
+                const c2 = hexToRgb(targetHex);
+                const r = Math.round(c1.r + (c2.r - c1.r) * percentage);
+                const g = Math.round(c1.g + (c2.g - c1.g) * percentage);
+                const b = Math.round(c1.b + (c2.b - c1.b) * percentage);
+                return rgbToHex(r, g, b);
+            } catch (e) {
+                return hex;
+            }
+        }
 
         // Security PIN and Banner States
         let currentPin = '2911'; // Default PIN
@@ -672,6 +886,124 @@ function doPost(e) {
             initInactivityWatcher();
         });
 
+        // App Appearance Config Live Handlers
+        function setBaseColor(colorName) {
+            selectedColor = colorName;
+            const root = document.documentElement;
+            const customPreview = document.getElementById('custom-color-preview');
+            const customPickerLabel = document.getElementById('color-opt-custom');
+
+            const presets = ['indigo', 'emerald', 'blue', 'amber', 'rose', 'violet'];
+
+            if (presets.includes(colorName)) {
+                // A. Normal Preset loading flow
+                const palette = COLOR_PALETTES[colorName] || COLOR_PALETTES.indigo;
+                root.style.setProperty('--color-brand-50', palette[50]);
+                root.style.setProperty('--color-brand-100', palette[100]);
+                root.style.setProperty('--color-brand-500', palette[500]);
+                root.style.setProperty('--color-brand-600', palette[600]);
+                root.style.setProperty('--color-brand-700', palette[700]);
+                root.style.setProperty('--color-accent-500', palette.accent);
+
+                // Reset custom label preview to spectrum
+                customPreview.style.background = 'linear-gradient(to tr, #ec4899, #ef4444, #eab308)';
+                customPickerLabel.className = "relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer";
+            } else if (colorName.startsWith('#')) {
+                // B. Custom HEX Color processing flow
+                const c50 = blendColor(colorName, '#ffffff', 0.93);
+                const c100 = blendColor(colorName, '#ffffff', 0.84);
+                const c500 = colorName;
+                const c600 = blendColor(colorName, '#000000', 0.15);
+                const c700 = blendColor(colorName, '#000000', 0.30);
+
+                root.style.setProperty('--color-brand-50', c50);
+                root.style.setProperty('--color-brand-100', c100);
+                root.style.setProperty('--color-brand-500', c500);
+                root.style.setProperty('--color-brand-600', c600);
+                root.style.setProperty('--color-brand-700', c700);
+                root.style.setProperty('--color-accent-500', c500);
+
+                // Set preview to hex color
+                customPreview.style.background = colorName;
+                customPickerLabel.className = "relative p-2.5 rounded-xl border-2 border-brand-500 bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer shadow-md";
+                document.getElementById('custom-color-picker').value = colorName;
+            }
+            
+            // Render active class in theme setting layout for preset buttons
+            presets.forEach(col => {
+                const btn = document.getElementById(`color-opt-${col}`);
+                if (btn) {
+                    if (col === colorName) {
+                        btn.className = "relative p-2.5 rounded-xl border-2 border-brand-500 bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all shadow-md";
+                    } else {
+                        btn.className = "relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all";
+                    }
+                }
+            });
+        }
+
+        // Live color input drag handler
+        function handleCustomColor(val) {
+            setBaseColor(val);
+        }
+
+        function setAppLogo(logoClass) {
+            selectedLogo = logoClass;
+            const logoIcon = document.getElementById('app-logo-icon');
+            if (logoIcon) {
+                // Ensure proper class naming sequence
+                const isSolidPreset = logoClass.startsWith('fa-');
+                logoIcon.className = isSolidPreset ? `fa-solid ${logoClass} text-lg sm:text-xl` : `${logoClass} text-lg sm:text-xl`;
+            }
+
+            // Render active logo preset highlighting border
+            const presetLogos = [
+                'fa-square-check', 'fa-star', 'fa-fire', 'fa-rocket', 'fa-list-check', 'fa-bolt',
+                'fa-crown', 'fa-seedling', 'fa-briefcase', 'fa-house', 'fa-laptop-code', 'fa-graduation-cap',
+                'fa-heart', 'fa-trophy', 'fa-bell', 'fa-calendar-days', 'fa-bullseye', 'fa-lightbulb'
+            ];
+            
+            let matchedPreset = false;
+
+            presetLogos.forEach(logo => {
+                const btn = document.getElementById(`logo-opt-${logo}`);
+                if (btn) {
+                    if (logo === logoClass) {
+                        btn.className = "p-3 rounded-xl border-2 border-brand-500 bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all shadow-md";
+                        matchedPreset = true;
+                    } else {
+                        btn.className = "p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all";
+                    }
+                }
+            });
+
+            // Update badge preview
+            const badge = document.getElementById('logo-badge-preview');
+            const customInput = document.getElementById('input-custom-logo');
+            
+            if (matchedPreset) {
+                badge.className = "text-[10px] bg-brand-100 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400 px-2.5 py-0.5 rounded-full font-bold";
+                badge.innerText = "Preset Terpilih";
+                if (customInput) customInput.value = '';
+            } else {
+                badge.className = "text-[10px] bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 px-2.5 py-0.5 rounded-full font-bold animate-pulse";
+                badge.innerText = "Kustom Aktif";
+                if (customInput && customInput.value !== logoClass) {
+                    customInput.value = logoClass;
+                }
+            }
+        }
+
+        // Live Custom FontAwesome input typing handler
+        function handleCustomLogoInput(val) {
+            const cleanVal = val.trim();
+            if (cleanVal) {
+                setAppLogo(cleanVal);
+            } else {
+                setAppLogo('fa-square-check'); // Fallback
+            }
+        }
+
         // Toggle Category Tabs (Kantor vs Rumah)
         function changeCategoryTab(category) {
             activeCategory = category;
@@ -703,10 +1035,10 @@ function doPost(e) {
             const themeIcon = document.getElementById('theme-icon');
             if (isDarkMode) {
                 html.classList.add('dark');
-                themeIcon.className = 'fa-solid fa-sun text-yellow-400';
+                themeIcon.className = 'fa-solid fa-sun text-yellow-400 text-sm sm:text-base';
             } else {
                 html.classList.remove('dark');
-                themeIcon.className = 'fa-solid fa-moon';
+                themeIcon.className = 'fa-solid fa-moon text-sm sm:text-base';
             }
         }
 
@@ -721,6 +1053,7 @@ function doPost(e) {
             document.getElementById('database-modal').classList.remove('hidden');
         }
 
+        // Close Database Modal Helper
         function closeDatabaseModal() {
             document.getElementById('database-modal').classList.add('hidden');
         }
@@ -732,6 +1065,10 @@ function doPost(e) {
             document.getElementById('input-banner-title').value = bannerTitle;
             document.getElementById('input-banner-subtitle').value = bannerSubtitle;
             
+            // Sync appearance colors & logo options in dashboard UI
+            setBaseColor(selectedColor);
+            setAppLogo(selectedLogo);
+
             switchAppSettingsTab('security');
             document.getElementById('app-settings-modal').classList.remove('hidden');
         }
@@ -744,33 +1081,63 @@ function doPost(e) {
         function switchAppSettingsTab(tabName) {
             const btnSecurity = document.getElementById('set-tab-security');
             const btnBanner = document.getElementById('set-tab-banner');
+            const btnAppearance = document.getElementById('set-tab-appearance');
             const contentSecurity = document.getElementById('settings-content-security');
             const contentBanner = document.getElementById('settings-content-banner');
+            const contentAppearance = document.getElementById('settings-content-appearance');
+
+            // Hide everything first
+            contentSecurity.classList.add('hidden');
+            contentBanner.classList.add('hidden');
+            contentAppearance.classList.add('hidden');
+
+            btnSecurity.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap";
+            btnBanner.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap";
+            btnAppearance.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap";
 
             if (tabName === 'security') {
-                btnSecurity.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-2 transition-all";
-                btnBanner.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-2 transition-all";
+                btnSecurity.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap";
                 contentSecurity.classList.remove('hidden');
-                contentBanner.classList.add('hidden');
-            } else {
-                btnBanner.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-2 transition-all";
-                btnSecurity.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 flex items-center justify-center gap-2 transition-all";
+            } else if (tabName === 'banner') {
+                btnBanner.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap";
                 contentBanner.classList.remove('hidden');
-                contentSecurity.classList.add('hidden');
+            } else if (tabName === 'appearance') {
+                btnAppearance.className = "flex-1 pb-3 text-xs font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap";
+                contentAppearance.classList.remove('hidden');
             }
         }
 
-        // Save Database Connection URL Settings
-        function saveDatabaseSettings() {
+        // Save Database Connection URL Settings with Premium Loading Transitions
+        async function saveDatabaseSettings() {
             const urlInput = document.getElementById('web-app-url-input').value.trim();
+            const btn = document.getElementById('btn-save-database');
+            const btnText = document.getElementById('text-save-database');
+
+            // 1. Show premium spinning loading indicator on active button
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btnText.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i>Menghubungkan...`;
+
+            // 2. Perform dynamic async operation with premium artificial delay
+            await new Promise(resolve => setTimeout(resolve, 850));
+
             webAppUrl = urlInput;
             localStorage.setItem(STORAGE_KEY_API_URL, urlInput);
+
+            // Restore button properties
+            btn.disabled = false;
+            btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            btnText.innerHTML = `Hubungkan Database`;
+
+            // 3. CLOSE MODAL FIRST
             closeDatabaseModal();
-            
-            showToast('Database Tersimpan!', urlInput ? 'Mulai menyinkronkan dengan Google Spreadsheet...' : 'Beralih menggunakan Penyimpanan Lokal.', 'success');
-            
-            updateConnectionStatus();
-            fetchTasks();
+
+            // 4. Raise the Premium Toast notification afterwards
+            setTimeout(() => {
+                showToast('Database Tersimpan!', urlInput ? 'Mulai menyinkronkan dengan Google Spreadsheet...' : 'Beralih menggunakan Penyimpanan Lokal.', 'success');
+                updateConnectionStatus();
+                fetchTasks();
+            }, 250);
         }
 
         // Connection Indicator Status Updated
@@ -780,12 +1147,12 @@ function doPost(e) {
             const text = document.getElementById('db-status-text');
 
             if (webAppUrl) {
-                badge.className = "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 cursor-pointer";
+                badge.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 cursor-pointer";
                 dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
                 text.innerText = "Spreadsheet Aktif";
             } else {
-                badge.className = "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-700 text-brand-600 dark:text-brand-400 cursor-pointer";
-                dot.className = "w-2 h-2 rounded-full bg-indigo-500";
+                badge.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-700 text-brand-600 dark:text-brand-400 cursor-pointer";
+                dot.className = "w-2 h-2 rounded-full bg-brand-500";
                 text.innerText = "Penyimpanan Lokal (Demo)";
             }
         }
@@ -818,6 +1185,13 @@ function doPost(e) {
             sessionDuration = parseInt(localStorage.getItem(STORAGE_KEY_SESSION_DURATION)) || 10;
             bannerTitle = localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋';
             bannerSubtitle = localStorage.getItem(STORAGE_KEY_BANNER_SUBTITLE) || 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.';
+
+            // Load custom theme settings
+            selectedColor = localStorage.getItem('prioritask_theme_color') || 'indigo';
+            setBaseColor(selectedColor);
+
+            selectedLogo = localStorage.getItem('prioritask_app_logo') || 'fa-square-check';
+            setAppLogo(selectedLogo);
 
             updateBannerUI();
         }
@@ -880,6 +1254,20 @@ function doPost(e) {
                 localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, bannerSubtitle);
             }
 
+            const colorConfig = configRows.find(c => c.id === 'cfg_base_color');
+            if (colorConfig) {
+                selectedColor = colorConfig.title;
+                localStorage.setItem('prioritask_theme_color', selectedColor);
+                setBaseColor(selectedColor);
+            }
+
+            const logoConfig = configRows.find(c => c.id === 'cfg_app_logo');
+            if (logoConfig) {
+                selectedLogo = logoConfig.title;
+                localStorage.setItem('prioritask_app_logo', selectedLogo);
+                setAppLogo(selectedLogo);
+            }
+
             updateBannerUI();
             showShimmer(false);
             filterAndRenderTasks();
@@ -895,6 +1283,8 @@ function doPost(e) {
             const localSession = localStorage.getItem(STORAGE_KEY_SESSION_DURATION) || '10';
             const localTitle = localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋';
             const localSub = localStorage.getItem(STORAGE_KEY_BANNER_SUBTITLE) || 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.';
+            const localColor = localStorage.getItem('prioritask_theme_color') || 'indigo';
+            const localLogo = localStorage.getItem('prioritask_app_logo') || 'fa-square-check';
 
             if (!parsed.some(t => t.id === 'cfg_pin')) {
                 parsed.push({ id: 'cfg_pin', title: localPin, priority: 'config' });
@@ -907,6 +1297,12 @@ function doPost(e) {
             }
             if (!parsed.some(t => t.id === 'cfg_banner_subtitle')) {
                 parsed.push({ id: 'cfg_banner_subtitle', title: localSub, priority: 'config' });
+            }
+            if (!parsed.some(t => t.id === 'cfg_base_color')) {
+                parsed.push({ id: 'cfg_base_color', title: localColor, priority: 'config' });
+            }
+            if (!parsed.some(t => t.id === 'cfg_app_logo')) {
+                parsed.push({ id: 'cfg_app_logo', title: localLogo, priority: 'config' });
             }
             return parsed;
         }
@@ -1475,7 +1871,7 @@ function doPost(e) {
 
             // Animate In (Slide Up & Fade In)
             setTimeout(() => {
-                toastEl.classList.remove('translate-y-12', 'opacity-0');
+                if (toastEl) toastEl.classList.remove('translate-y-12', 'opacity-0');
             }, 50);
 
             // Auto Dismiss
@@ -1612,7 +2008,7 @@ function doPost(e) {
             }, 1000); 
         }
 
-        // Core Helper to Save App Configurations (PIN, Session, Banner) safely into Spreadsheet
+        // Core Helper to Save App Configurations (PIN, Session, Banner, Theme) safely into Spreadsheet
         async function saveConfigToSpreadsheet(configId, configValue) {
             const payload = {
                 id: configId,
@@ -1652,48 +2048,71 @@ function doPost(e) {
             }
         }
 
-        // Save App Security Configuration
+        // Save App Security Configuration with Premium Loading & Sequence Transition
         async function saveSecuritySettings() {
             const pinVal = document.getElementById('input-new-pin').value.trim();
             const confirmVal = document.getElementById('input-confirm-pin').value.trim();
             const durationVal = parseInt(document.getElementById('input-session-duration').value);
 
-            showShimmer(true);
+            const btn = document.getElementById('btn-save-security');
+            const btnIcon = document.getElementById('icon-save-security');
+            const btnText = document.getElementById('text-save-security');
 
             if (pinVal || confirmVal) {
                 if (pinVal.length !== 4 || isNaN(pinVal)) {
-                    showShimmer(false);
                     showToast("Format PIN Salah", "PIN baru harus terdiri dari 4 digit angka.", "warning");
                     return;
                 }
 
                 if (pinVal !== confirmVal) {
-                    showShimmer(false);
                     showToast("Konfirmasi Tidak Cocok", "Konfirmasi PIN tidak sesuai dengan PIN baru.", "warning");
                     return;
                 }
+            }
 
+            // 1. Show premium button loading
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            const origIconClass = btnIcon.className;
+            btnIcon.className = "fa-solid fa-spinner animate-spin";
+            const origText = btnText.innerText;
+            btnText.innerText = "Menyimpan Keamanan...";
+
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            if (pinVal || confirmVal) {
                 currentPin = pinVal;
                 localStorage.setItem(STORAGE_KEY_PIN, pinVal);
                 await saveConfigToSpreadsheet('cfg_pin', pinVal);
-                showToast("PIN Berhasil Diperbarui!", "Sistem keamanan PIN telah ditingkatkan.", "success");
             }
 
             sessionDuration = durationVal;
             localStorage.setItem(STORAGE_KEY_SESSION_DURATION, durationVal);
             await saveConfigToSpreadsheet('cfg_session_duration', durationVal.toString());
 
-            showShimmer(false);
-            
-            const durationText = durationVal === 999999 ? 'tanpa kunci otomatis' : `${durationVal} menit`;
-            showToast("Pengaturan Disimpan!", `Durasi sesi berhasil diatur menjadi ${durationText}.`, "success");
+            // Reset button state
+            btn.disabled = false;
+            btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            btnIcon.className = origIconClass;
+            btnText.innerText = origText;
 
             document.getElementById('input-new-pin').value = '';
             document.getElementById('input-confirm-pin').value = '';
+
+            // 2. CLOSE MODAL FIRST
             closeAppSettingsModal();
+
+            // 3. Show Toast after modal transition completes
+            setTimeout(() => {
+                if (pinVal) {
+                    showToast("PIN Berhasil Diperbarui!", "Sistem keamanan PIN telah ditingkatkan.", "success");
+                }
+                const durationText = durationVal === 999999 ? 'tanpa kunci otomatis' : `${durationVal} menit`;
+                showToast("Pengaturan Disimpan!", `Durasi sesi berhasil diatur menjadi ${durationText}.`, "success");
+            }, 250);
         }
 
-        // Save App Banner Wordings Configuration
+        // Save App Banner Wordings Configuration with Premium Loading & Sequence Transition
         async function saveBannerConfig() {
             const titleVal = document.getElementById('input-banner-title').value.trim();
             const subtitleVal = document.getElementById('input-banner-subtitle').value.trim();
@@ -1703,6 +2122,20 @@ function doPost(e) {
                 return;
             }
 
+            const btn = document.getElementById('btn-save-banner');
+            const btnIcon = document.getElementById('icon-save-banner');
+            const btnText = document.getElementById('text-save-banner');
+
+            // 1. Show premium button loading
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            const origIconClass = btnIcon.className;
+            btnIcon.className = "fa-solid fa-spinner animate-spin";
+            const origText = btnText.innerText;
+            btnText.innerText = "Menyimpan Banner...";
+
+            await new Promise(resolve => setTimeout(resolve, 800));
+
             bannerTitle = titleVal;
             bannerSubtitle = subtitleVal;
 
@@ -1711,13 +2144,60 @@ function doPost(e) {
 
             updateBannerUI();
 
-            showShimmer(true);
             await saveConfigToSpreadsheet('cfg_banner_title', titleVal);
             await saveConfigToSpreadsheet('cfg_banner_subtitle', subtitleVal);
-            showShimmer(false);
 
-            showToast("Banner Diperbarui!", "Perubahan teks banner sambutan berhasil disimpan.", "success");
+            // Reset button properties
+            btn.disabled = false;
+            btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            btnIcon.className = origIconClass;
+            btnText.innerText = origText;
+
+            // 2. CLOSE MODAL FIRST
             closeAppSettingsModal();
+
+            // 3. Show Toast after modal transition completes
+            setTimeout(() => {
+                showToast("Banner Diperbarui!", "Perubahan teks banner sambutan berhasil disimpan.", "success");
+            }, 250);
+        }
+
+        // Save Application Appearance & Branding configurations with Premium Loading & Sequence Transition
+        async function saveAppearanceSettings() {
+            const btn = document.getElementById('btn-save-appearance');
+            const btnIcon = document.getElementById('icon-save-appearance');
+            const btnText = document.getElementById('text-save-appearance');
+
+            // 1. Show premium button loading
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            const origIconClass = btnIcon.className;
+            btnIcon.className = "fa-solid fa-spinner animate-spin";
+            const origText = btnText.innerText;
+            btnText.innerText = "Menyimpan Tampilan...";
+
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            // Set color state and application brand icon configurations
+            localStorage.setItem('prioritask_theme_color', selectedColor);
+            localStorage.setItem('prioritask_app_logo', selectedLogo);
+
+            await saveConfigToSpreadsheet('cfg_base_color', selectedColor);
+            await saveConfigToSpreadsheet('cfg_app_logo', selectedLogo);
+
+            // Reset button state
+            btn.disabled = false;
+            btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            btnIcon.className = origIconClass;
+            btnText.innerText = origText;
+
+            // 2. CLOSE MODAL FIRST
+            closeAppSettingsModal();
+
+            // 3. Show Toast after modal transition completes
+            setTimeout(() => {
+                showToast("Tampilan Diperbarui!", "Warna tema dan logo aplikasi berhasil disesuaikan.", "success");
+            }, 250);
         }
     </script>
 </body>
