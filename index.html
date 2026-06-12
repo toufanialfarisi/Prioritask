@@ -6,7 +6,7 @@
     <title>Prioritask - Kelola Tugas Premium & Produktif</title>
     <!-- Tailwind CSS CDN Loaded First -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tailwind CSS Configuration defined AFTER CDN is loaded to prevent overwrite & ReferenceError -->
+    <!-- Tailwind CSS Configuration -->
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -28,8 +28,8 @@
             }
         };
     </script>
-    <!-- Google Fonts: Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Canvas Confetti for Celebration -->
@@ -46,8 +46,9 @@
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
+
         /* Custom Shimmer Effect */
         @keyframes shimmer {
             0% { background-position: -200% 0; }
@@ -63,6 +64,7 @@
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
+
         /* Auto Scroll List Styling */
         .task-list-container::-webkit-scrollbar {
             width: 6px;
@@ -123,7 +125,6 @@
     <!-- Screen Lock Overlay -->
     <div id="pin-lock-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-slate-900/90 dark:bg-zinc-950/95 backdrop-blur-xl transition-all duration-500">
         <div class="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700/60 p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center space-y-6">
-            <!-- Security Header -->
             <div class="flex flex-col items-center gap-2">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
                     <i class="fa-solid fa-lock text-xl"></i>
@@ -132,7 +133,6 @@
                 <p class="text-xs text-slate-400 dark:text-zinc-500">Masukkan PIN Keamanan untuk melanjutkan</p>
             </div>
             
-            <!-- Dot indicators -->
             <div class="flex justify-center gap-4 py-2">
                 <div id="pin-dot-1" class="w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all"></div>
                 <div id="pin-dot-2" class="w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all"></div>
@@ -140,7 +140,6 @@
                 <div id="pin-dot-4" class="w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all"></div>
             </div>
             
-            <!-- Virtual Numpad Grid -->
             <div class="grid grid-cols-3 gap-3">
                 <button onclick="pressPin('1')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">1</button>
                 <button onclick="pressPin('2')" class="py-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-700/50 text-xl font-bold active:scale-95 transition-all">2</button>
@@ -175,26 +174,21 @@
                 </div>
             </div>
 
-            <!-- Header Action Controls -->
             <div class="flex items-center gap-1.5 sm:gap-3">
-                <!-- Mode Status (Sheets vs Local) -->
                 <button onclick="openDatabaseModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold border border-slate-200 dark:border-zinc-700 transition-all duration-300" id="db-status-badge">
                     <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 animate-pulse" id="db-status-dot"></span>
                     <span id="db-status-text" class="hidden md:inline">Memeriksa Database...</span>
                     <i class="fa-solid fa-database md:hidden text-slate-500 dark:text-zinc-400"></i>
                 </button>
 
-                <!-- Dark/Light Toggle -->
                 <button onclick="toggleDarkMode()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all duration-200" title="Ganti Tema">
                     <i id="theme-icon" class="fa-solid fa-moon text-sm sm:text-base"></i>
                 </button>
 
-                <!-- Help/Settings Button -->
                 <button onclick="openAppSettingsModal()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all duration-200" title="Pengaturan PIN & Banner">
                     <i class="fa-solid fa-gear text-sm sm:text-base"></i>
                 </button>
 
-                <!-- Logout / Lock Button -->
                 <button onclick="logout()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-rose-200 dark:border-rose-950/30 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 flex items-center justify-center transition-all duration-200" title="Kunci Aplikasi / Keluar">
                     <i class="fa-solid fa-right-from-bracket text-sm sm:text-base"></i>
                 </button>
@@ -205,13 +199,11 @@
     <!-- Main Content Area -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- Dynamic Grid: Form Input, Stats & Task Lists -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <!-- Left Side: Banner, Stats & Input Form Consolidated -->
+            <!-- Left Side: Banner, Stats & Input Form -->
             <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
                 
-                <!-- Dynamic Welcome Banner -->
                 <div class="p-6 rounded-3xl bg-gradient-to-br from-brand-600 to-accent-500 text-white relative overflow-hidden shadow-xl shadow-brand-500/10">
                     <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                     <div class="relative z-10">
@@ -222,26 +214,21 @@
                     </div>
                 </div>
 
-                <!-- Simple & Elegant Progress & Stats Panel -->
                 <div class="bg-white dark:bg-zinc-800 rounded-3xl border border-slate-200 dark:border-zinc-700 p-5 shadow-sm transition-all duration-300 space-y-4">
                     <div class="grid grid-cols-3 gap-3">
-                        <!-- Total Card -->
                         <div class="text-center p-3 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-100 dark:border-zinc-700/50">
                             <span class="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider block">Total</span>
                             <span class="text-xl font-extrabold mt-1 block text-slate-700 dark:text-zinc-200" id="stat-total-tasks">0</span>
                         </div>
-                        <!-- Selesai Card -->
                         <div class="text-center p-3 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100/50 dark:border-emerald-900/20">
                             <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider block">Selesai</span>
                             <span class="text-xl font-extrabold text-emerald-500 mt-1 block" id="stat-completed-tasks">0</span>
                         </div>
-                        <!-- Duration Card -->
                         <div class="text-center p-3 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/10 border border-indigo-100/50 dark:border-indigo-900/20">
                             <span class="text-[10px] text-brand-600 dark:text-brand-400 font-bold uppercase tracking-wider block">Sisa Jam</span>
                             <span class="text-sm font-extrabold text-brand-500 mt-2 block" id="stat-total-hours">0 Jam</span>
                         </div>
                     </div>
-                    <!-- Modern Progress Bar -->
                     <div class="space-y-2 pt-1 border-t border-slate-100 dark:border-zinc-700/50">
                         <div class="flex justify-between items-center text-xs font-bold">
                             <span class="text-slate-500 dark:text-zinc-400">Progres Penyelesaian</span>
@@ -253,7 +240,6 @@
                     </div>
                 </div>
 
-                <!-- Interactive Input Form -->
                 <div class="bg-white dark:bg-zinc-800 rounded-3xl border border-slate-200 dark:border-zinc-700 p-6 shadow-sm transition-all duration-300">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-2">
@@ -269,7 +255,7 @@
                         <input type="hidden" id="task-id">
                         <div>
                             <label for="task-title" class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Judul Tugas</label>
-                            <input type="text" id="task-title" required placeholder="Contoh: Menyelesaikan laporan keuangan bulanan..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm font-medium">
+                            <input type="text" id="task-title" required placeholder="Contoh: Menyelesaikan laporan..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm font-medium">
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -332,7 +318,7 @@
                         <input type="text" id="search-input" oninput="filterAndRenderTasks()" placeholder="Cari berdasarkan judul tugas..." class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
                     </div>
                     
-                    <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
                         <button onclick="changeActiveFilter('Semua')" id="filter-all" class="px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap bg-brand-500 text-white shadow-md shadow-brand-500/10 transition-all duration-200">
                             Semua
                         </button>
@@ -350,7 +336,7 @@
 
                 <!-- Main Tasks List Container -->
                 <div class="bg-white dark:bg-zinc-800 rounded-3xl border border-slate-200 dark:border-zinc-700 p-6 shadow-sm transition-all duration-300">
-                    <!-- Category Tab Navigation - Structural Fix for Border Overlay -->
+                    <!-- Category Tab Navigation -->
                     <div class="border-b border-slate-100 dark:border-zinc-700/80 mb-6">
                         <div class="flex -mb-px">
                             <button onclick="changeCategoryTab('Kantor')" id="tab-kantor" class="flex-1 py-4 text-sm font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-500 flex items-center justify-center gap-2 transition-all duration-200">
@@ -369,21 +355,19 @@
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-sm text-slate-400 dark:text-zinc-500 flex items-center gap-2">
                             <i class="fa-solid fa-list"></i>
-                            Daftar Tugas Terjadwal
+                            Daftar Tugas
                         </h3>
                         <div class="flex items-center gap-3">
-                            <span class="text-xs text-slate-400 dark:text-zinc-500" id="task-showing-count">Menampilkan 0 tugas</span>
+                            <span class="text-xs text-slate-400 dark:text-zinc-500" id="task-showing-count">0 tugas</span>
                             <button onclick="openClearCompletedModal()" id="btn-clear-completed" class="hidden text-xs items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/20 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-all font-bold">
                                 <i class="fa-solid fa-broom"></i> Bersihkan
                             </button>
                         </div>
                     </div>
 
-                    <!-- Dynamic Task List (Extends vertically without internal scrollbar) -->
                     <div id="task-list-element" class="task-list-container space-y-4 scroll-smooth">
                         <!-- Shimmer Placeholders on Load -->
                         <div class="task-shimmer space-y-4">
-                            <div class="p-5 border border-slate-200 dark:border-zinc-700 rounded-2xl shimmer h-24"></div>
                             <div class="p-5 border border-slate-200 dark:border-zinc-700 rounded-2xl shimmer h-24"></div>
                             <div class="p-5 border border-slate-200 dark:border-zinc-700 rounded-2xl shimmer h-24"></div>
                         </div>
@@ -394,10 +378,9 @@
         </section>
     </main>
 
-    <!-- Modal 1: Google Spreadsheet Connection & Guide -->
+    <!-- Modal 1: Google Spreadsheet Connection -->
     <div id="database-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden animate-fade-in">
         <div class="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col transition-all duration-300 overflow-hidden">
-            <!-- Modal Header (Static) -->
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-700 p-6 pb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20">
@@ -413,20 +396,17 @@
                 </button>
             </div>
 
-            <!-- Modal Body (Independent Scrollable) -->
-            <div class="p-6 space-y-6 overflow-y-auto flex-1">
-                <!-- Deployment URL Input -->
+            <div class="p-6 space-y-6 overflow-y-auto flex-1 hide-scrollbar">
                 <div class="bg-slate-50 dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-700/80">
                     <label for="web-app-url-input" class="block text-sm font-bold mb-2">Google Apps Script Web App URL</label>
                     <input type="url" id="web-app-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all font-mono">
                     <p class="text-xs text-slate-400 dark:text-zinc-500 mt-2">Biarkan kosong jika Anda ingin menggunakan <span class="font-bold text-brand-500">Mode Penyimpanan Lokal (Demo Offline)</span>.</p>
                 </div>
 
-                <!-- Integration Step-by-Step Guide -->
                 <div class="space-y-4">
                     <h4 class="font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-2">
                         <i class="fa-solid fa-graduation-cap text-brand-500"></i>
-                        Panduan Langkah Demi Langkah Integrasi
+                        Panduan Langkah Demi Langkah
                     </h4>
                     
                     <div class="relative border-l border-slate-200 dark:border-zinc-700 pl-6 space-y-5 ml-3">
@@ -434,22 +414,18 @@
                             <span class="absolute -left-[34px] top-0 w-4 h-4 rounded-full bg-brand-500 border-4 border-white dark:border-zinc-800"></span>
                             <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Langkah 1</h5>
                             <p class="text-sm font-semibold mt-0.5">Buat Google Spreadsheet Baru</p>
-                            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Buka <a href="https://sheets.new" target="_blank" class="text-brand-500 underline">sheets.new</a>.</p>
                         </div>
-
                         <div class="relative">
                             <span class="absolute -left-[34px] top-0 w-4 h-4 rounded-full bg-brand-500 border-4 border-white dark:border-zinc-800"></span>
                             <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Langkah 2</h5>
-                            <p class="text-sm font-semibold mt-0.5">Buka Apps Script</p>
-                            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Pada menu Spreadsheet Anda, masuk ke <strong>Ekstensi</strong> &gt; <strong>Apps Script</strong>.</p>
+                            <p class="text-sm font-semibold mt-0.5">Buka Ekstensi > Apps Script</p>
                         </div>
-
                         <div class="relative">
                             <span class="absolute -left-[34px] top-0 w-4 h-4 rounded-full bg-brand-500 border-4 border-white dark:border-zinc-800"></span>
                             <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Langkah 3</h5>
                             <p class="text-sm font-semibold mt-0.5">Salin Kode Script Di Bawah</p>
-                            <div class="relative">
-                                <pre class="bg-slate-900 text-slate-300 text-[10px] p-4 rounded-xl overflow-x-auto font-mono max-h-48" id="script-code-block">
+                            <div class="relative mt-2">
+                                <pre class="bg-slate-900 text-slate-300 text-[10px] p-4 rounded-xl overflow-x-auto font-mono max-h-48 hide-scrollbar" id="script-code-block">
 function doGet(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var rows = sheet.getDataRange().getValues();
@@ -470,8 +446,7 @@ function doGet(e) {
       completed: rows[i][6] === true || rows[i][6] === "true"
     });
   }
-  return ContentService.createTextOutput(JSON.stringify(tasks))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(tasks)).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -516,28 +491,23 @@ function doPost(e) {
   }
 }</pre>
                                 <button onclick="copyScriptCode()" class="absolute right-2 top-2 bg-slate-800 text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all">
-                                    <i class="fa-regular fa-copy"></i> Salin Kode
+                                    <i class="fa-regular fa-copy"></i> Salin
                                 </button>
                             </div>
                         </div>
-
                         <div class="relative">
                             <span class="absolute -left-[34px] top-0 w-4 h-4 rounded-full bg-brand-500 border-4 border-white dark:border-zinc-800"></span>
                             <h5 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Langkah 4</h5>
-                            <p class="text-sm font-semibold mt-0.5">Terapkan Sebagai Web App (Deploy)</p>
-                            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Klik tombol <strong>Terapkan (Deploy)</strong> &gt; pilih <strong>Penerapan baru (New deployment)</strong>. Pilih tipe: <strong>Aplikasi web (Web app)</strong>.<br>- Jalankan sebagai: <strong>Saya (email Anda)</strong>.<br>- Siapa yang memiliki akses: <strong>Siapa saja (Anyone)</strong></p>
+                            <p class="text-sm font-semibold mt-0.5">Deploy sebagai Web App</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Modal Footer (Static) -->
             <div class="border-t border-slate-100 dark:border-zinc-700 p-6 pt-4 flex justify-end gap-3 bg-white dark:bg-zinc-800">
-                <button onclick="closeDatabaseModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
-                    Tutup
-                </button>
-                <button id="btn-save-database" onclick="saveDatabaseSettings()" class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/15 hover:bg-brand-600 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <span id="text-save-database">Hubungkan Database</span>
+                <button onclick="closeDatabaseModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">Tutup</button>
+                <button id="btn-save-database" onclick="saveDatabaseSettings()" class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-bold shadow-lg shadow-brand-500/15 hover:bg-brand-600 active:scale-95 transition-all flex items-center gap-2">
+                    <span id="text-save-database">Hubungkan</span>
                 </button>
             </div>
         </div>
@@ -547,7 +517,6 @@ function doPost(e) {
     <div id="app-settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden animate-fade-in">
         <div class="bg-white dark:bg-zinc-800 rounded-3xl border border-slate-200 dark:border-zinc-700 w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl transition-all duration-300 overflow-hidden">
             
-            <!-- Modal Header (Static) -->
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-700 p-6 pb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-accent-500 text-white flex items-center justify-center text-xl shadow-lg shadow-brand-500/20">
@@ -555,7 +524,7 @@ function doPost(e) {
                     </div>
                     <div>
                         <h3 class="font-bold text-lg">Konfigurasi Aplikasi</h3>
-                        <p class="text-xs text-slate-400 dark:text-zinc-500">Keamanan, tulisan banner, serta penyesuaian visual logo & warna</p>
+                        <p class="text-xs text-slate-400 dark:text-zinc-500">Keamanan, tulisan banner, penyesuaian visual</p>
                     </div>
                 </div>
                 <button onclick="closeAppSettingsModal()" class="w-8 h-8 rounded-full border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
@@ -563,7 +532,6 @@ function doPost(e) {
                 </button>
             </div>
 
-            <!-- Modal Tab Navigation - Advanced Structure for Clip-Proof Borders -->
             <div class="border-b border-slate-100 dark:border-zinc-700/80 bg-white dark:bg-zinc-800">
                 <div class="px-6 overflow-x-auto hide-scrollbar">
                     <div class="flex gap-2 -mb-px">
@@ -580,125 +548,81 @@ function doPost(e) {
                 </div>
             </div>
 
-            <!-- Tab Content Frame (Independent Scrollable Container) -->
-            <div class="p-6 overflow-y-auto flex-1 space-y-6 bg-white dark:bg-zinc-800">
+            <div class="p-6 overflow-y-auto flex-1 space-y-6 bg-white dark:bg-zinc-800 hide-scrollbar">
                 
-                <!-- Tab Content 1: Security PIN -->
+                <!-- Tab 1: Security -->
                 <div id="settings-content-security" class="space-y-6">
                     <div class="bg-slate-50 dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-700/80 space-y-4">
                         <h4 class="text-sm font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-2">
-                            <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                            Pengaturan PIN & Kunci Sesi
+                            <i class="fa-solid fa-shield-halved text-amber-500"></i> Setelan PIN Sesi
                         </h4>
-                        <p class="text-xs text-slate-400 dark:text-zinc-500 leading-relaxed">
-                            Masukkan PIN 4-digit baru jika ingin menggantinya. Sesuaikan juga durasi waktu tenggang (inaktivitas) sebelum aplikasi terkunci kembali.
-                        </p>
                         
                         <div class="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-zinc-700/50 pb-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2 tracking-wider">PIN Baru</label>
-                                <input type="password" id="input-new-pin" maxlength="4" placeholder="Tetap (tidak diubah)" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-center text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2">PIN Baru</label>
+                                <input type="password" id="input-new-pin" maxlength="4" placeholder="Tidak diubah" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-center text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2 tracking-wider">Konfirmasi PIN</label>
-                                <input type="password" id="input-confirm-pin" maxlength="4" placeholder="Ulangi PIN baru" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-center text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2">Konfirmasi</label>
+                                <input type="password" id="input-confirm-pin" maxlength="4" placeholder="Ulangi PIN" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-center text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
                             </div>
                         </div>
 
                         <div>
-                            <label for="input-session-duration" class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2 tracking-wider">Durasi Sesi Kunci Otomatis</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2">Durasi Kunci Otomatis</label>
                             <select id="input-session-duration" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
                                 <option value="1">1 Menit</option>
-                                <option value="3">3 Menit</option>
                                 <option value="5">5 Menit</option>
-                                <option value="10" selected>10 Menit (Default)</option>
-                                <option value="15">15 Menit</option>
+                                <option value="10" selected>10 Menit</option>
                                 <option value="30">30 Menit</option>
                                 <option value="60">1 Jam</option>
-                                <option value="999999">Jangan Pernah Kunci Otomatis</option>
+                                <option value="999999">Jangan Pernah Kunci</option>
                             </select>
                         </div>
 
-                        <button id="btn-save-security" onclick="saveSecuritySettings()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <button onclick="saveSecuritySettings()" id="btn-save-security" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2">
                             <i id="icon-save-security" class="fa-solid fa-lock-open"></i>
-                            <span id="text-save-security">Simpan Setelan Keamanan</span>
+                            <span id="text-save-security">Simpan Keamanan</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Tab Content 2: Banner Customizer -->
+                <!-- Tab 2: Banner -->
                 <div id="settings-content-banner" class="hidden space-y-6">
                     <div class="bg-slate-50 dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-700/80 space-y-4">
                         <h4 class="text-sm font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-2">
-                            <i class="fa-solid fa-heading text-brand-500"></i>
-                            Kustomisasi Tulisan Banner
+                            <i class="fa-solid fa-heading text-brand-500"></i> Kustomisasi Banner
                         </h4>
-                        <p class="text-xs text-slate-400 dark:text-zinc-500 leading-relaxed">
-                            Sesuaikan kata sambutan dan kalimat motivasi pada kartu utama dashboard Anda.
-                        </p>
-                        
                         <div>
                             <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2">Judul Banner</label>
-                            <input type="text" id="input-banner-title" placeholder="Halo Sahabat Produktif! 👋" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all">
+                            <input type="text" id="input-banner-title" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium focus:ring-2 focus:ring-brand-500">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2">Subjudul Banner</label>
-                            <textarea id="input-banner-subtitle" rows="3" placeholder="Mari selesaikan rencana tugas..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all resize-none"></textarea>
+                            <textarea id="input-banner-subtitle" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-medium focus:ring-2 focus:ring-brand-500 resize-none"></textarea>
                         </div>
-
-                        <button id="btn-save-banner" onclick="saveBannerConfig()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <button onclick="saveBannerConfig()" id="btn-save-banner" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2">
                             <i id="icon-save-banner" class="fa-solid fa-floppy-disk"></i>
-                            <span id="text-save-banner">Simpan Perubahan Banner</span>
+                            <span id="text-save-banner">Simpan Banner</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Tab Content 3: Appearance & Logo -->
+                <!-- Tab 3: Appearance -->
                 <div id="settings-content-appearance" class="hidden space-y-6">
                     <div class="bg-slate-50 dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-700/80 space-y-5">
                         <h4 class="text-sm font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-2">
-                            <i class="fa-solid fa-palette text-emerald-500"></i>
-                            Kustomisasi Logo & Warna Dasar
+                            <i class="fa-solid fa-palette text-emerald-500"></i> Tema Dasar
                         </h4>
-                        <p class="text-xs text-slate-400 dark:text-zinc-500 leading-relaxed">
-                            Atur warna utama dashboard (pilih preset atau kustom) dan pilih logo aplikasi agar sesuai dengan estetika pengerjaan Anda.
-                        </p>
-
-                        <!-- Base Color Selector -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-3 tracking-wider">Pilih Warna Dasar Aplikasi</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-3">Warna Aksen</label>
                             <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                                <!-- Indigo (Default) -->
-                                <button onclick="setBaseColor('indigo')" id="color-opt-indigo" class="relative p-2.5 rounded-xl border-2 border-brand-500 bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
-                                    <span class="w-5 h-5 rounded-full bg-indigo-500 shadow-sm"></span>
-                                    <span class="text-[10px] font-bold">Indigo</span>
-                                </button>
-                                <!-- Emerald -->
-                                <button onclick="setBaseColor('emerald')" id="color-opt-emerald" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
-                                    <span class="w-5 h-5 rounded-full bg-emerald-500 shadow-sm"></span>
-                                    <span class="text-[10px] font-bold">Hijau</span>
-                                </button>
-                                <!-- Blue -->
-                                <button onclick="setBaseColor('blue')" id="color-opt-blue" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
-                                    <span class="w-5 h-5 rounded-full bg-blue-500 shadow-sm"></span>
-                                    <span class="text-[10px] font-bold">Biru</span>
-                                </button>
-                                <!-- Amber -->
-                                <button onclick="setBaseColor('amber')" id="color-opt-amber" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
-                                    <span class="w-5 h-5 rounded-full bg-amber-500 shadow-sm"></span>
-                                    <span class="text-[10px] font-bold">Oranye</span>
-                                </button>
-                                <!-- Rose -->
-                                <button onclick="setBaseColor('rose')" id="color-opt-rose" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
-                                    <span class="w-5 h-5 rounded-full bg-rose-500 shadow-sm"></span>
-                                    <span class="text-[10px] font-bold">Merah</span>
-                                </button>
-                                <!-- Violet -->
-                                <button onclick="setBaseColor('violet')" id="color-opt-violet" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
-                                    <span class="w-5 h-5 rounded-full bg-violet-500 shadow-sm"></span>
-                                    <span class="text-[10px] font-bold">Ungu</span>
-                                </button>
-                                <!-- Custom Color Picker Trigger Button -->
+                                <button onclick="setBaseColor('indigo')" id="color-opt-indigo" class="relative p-2.5 rounded-xl border-2 border-brand-500 bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"><span class="w-5 h-5 rounded-full bg-indigo-500 shadow-sm"></span><span class="text-[10px] font-bold">Indigo</span></button>
+                                <button onclick="setBaseColor('emerald')" id="color-opt-emerald" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"><span class="w-5 h-5 rounded-full bg-emerald-500 shadow-sm"></span><span class="text-[10px] font-bold">Hijau</span></button>
+                                <button onclick="setBaseColor('blue')" id="color-opt-blue" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"><span class="w-5 h-5 rounded-full bg-blue-500 shadow-sm"></span><span class="text-[10px] font-bold">Biru</span></button>
+                                <button onclick="setBaseColor('amber')" id="color-opt-amber" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"><span class="w-5 h-5 rounded-full bg-amber-500 shadow-sm"></span><span class="text-[10px] font-bold">Oranye</span></button>
+                                <button onclick="setBaseColor('rose')" id="color-opt-rose" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"><span class="w-5 h-5 rounded-full bg-rose-500 shadow-sm"></span><span class="text-[10px] font-bold">Merah</span></button>
+                                <button onclick="setBaseColor('violet')" id="color-opt-violet" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"><span class="w-5 h-5 rounded-full bg-violet-500 shadow-sm"></span><span class="text-[10px] font-bold">Ungu</span></button>
                                 <label id="color-opt-custom" class="relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer">
                                     <input type="color" id="custom-color-picker" oninput="handleCustomColor(this.value)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
                                     <span id="custom-color-preview" class="w-5 h-5 rounded-full bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-500 shadow-sm border border-slate-200 dark:border-zinc-700"></span>
@@ -707,96 +631,40 @@ function doPost(e) {
                             </div>
                         </div>
 
-                        <!-- Logo Selector Presets -->
                         <div>
                             <div class="flex justify-between items-center mb-3">
-                                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Pilih Logo Aplikasi (Variasi Preset)</label>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Logo Aplikasi</label>
                                 <span class="text-[10px] text-slate-400 font-semibold" id="logo-badge-preview">Preset Terpilih</span>
                             </div>
                             <div class="grid grid-cols-6 gap-2 bg-white dark:bg-zinc-900 p-3 rounded-2xl border border-slate-200/60 dark:border-zinc-700/60">
-                                <button onclick="setAppLogo('fa-square-check')" id="logo-opt-fa-square-check" class="p-3 rounded-xl border-2 border-brand-500 bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Centang Box">
-                                    <i class="fa-solid fa-square-check"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-star')" id="logo-opt-fa-star" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Bintang">
-                                    <i class="fa-solid fa-star"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-fire')" id="logo-opt-fa-fire" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Api Fokus">
-                                    <i class="fa-solid fa-fire"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-rocket')" id="logo-opt-fa-rocket" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Roket">
-                                    <i class="fa-solid fa-rocket"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-list-check')" id="logo-opt-fa-list-check" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Daftar Centang">
-                                    <i class="fa-solid fa-list-check"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-bolt')" id="logo-opt-fa-bolt" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Kilat Produktivitas">
-                                    <i class="fa-solid fa-bolt"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-crown')" id="logo-opt-fa-crown" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Mahkota">
-                                    <i class="fa-solid fa-crown"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-seedling')" id="logo-opt-fa-seedling" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Pertumbuhan">
-                                    <i class="fa-solid fa-seedling"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-briefcase')" id="logo-opt-fa-briefcase" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Koper">
-                                    <i class="fa-solid fa-briefcase"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-house')" id="logo-opt-fa-house" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Home">
-                                    <i class="fa-solid fa-house"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-laptop-code')" id="logo-opt-fa-laptop-code" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Ngoding">
-                                    <i class="fa-solid fa-laptop-code"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-graduation-cap')" id="logo-opt-fa-graduation-cap" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Belajar">
-                                    <i class="fa-solid fa-graduation-cap"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-heart')" id="logo-opt-fa-heart" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Kesehatan">
-                                    <i class="fa-solid fa-heart"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-trophy')" id="logo-opt-fa-trophy" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Prestasi">
-                                    <i class="fa-solid fa-trophy"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-bell')" id="logo-opt-fa-bell" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Notifikasi">
-                                    <i class="fa-solid fa-bell"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-calendar-days')" id="logo-opt-fa-calendar-days" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Rencana">
-                                    <i class="fa-solid fa-calendar-days"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-bullseye')" id="logo-opt-fa-bullseye" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Sasaran">
-                                    <i class="fa-solid fa-bullseye"></i>
-                                </button>
-                                <button onclick="setAppLogo('fa-lightbulb')" id="logo-opt-fa-lightbulb" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all" title="Ide Kreatif">
-                                    <i class="fa-solid fa-lightbulb"></i>
-                                </button>
+                                <button onclick="setAppLogo('fa-square-check')" id="logo-opt-fa-square-check" class="p-3 rounded-xl border-2 border-brand-500 bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg hover:border-brand-500 transition-all"><i class="fa-solid fa-square-check"></i></button>
+                                <button onclick="setAppLogo('fa-star')" id="logo-opt-fa-star" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg hover:border-brand-500 transition-all"><i class="fa-solid fa-star"></i></button>
+                                <button onclick="setAppLogo('fa-fire')" id="logo-opt-fa-fire" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg hover:border-brand-500 transition-all"><i class="fa-solid fa-fire"></i></button>
+                                <button onclick="setAppLogo('fa-rocket')" id="logo-opt-fa-rocket" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg hover:border-brand-500 transition-all"><i class="fa-solid fa-rocket"></i></button>
+                                <button onclick="setAppLogo('fa-list-check')" id="logo-opt-fa-list-check" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg hover:border-brand-500 transition-all"><i class="fa-solid fa-list-check"></i></button>
+                                <button onclick="setAppLogo('fa-bolt')" id="logo-opt-fa-bolt" class="p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg hover:border-brand-500 transition-all"><i class="fa-solid fa-bolt"></i></button>
                             </div>
                         </div>
 
-                        <!-- Custom FontAwesome Input -->
                         <div class="pt-1 border-t border-slate-100 dark:border-zinc-700/50">
-                            <label for="input-custom-logo" class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2 tracking-wider">Atau Gunakan Custom FontAwesome Class</label>
+                            <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase mb-2">FontAwesome Class</label>
                             <div class="flex gap-2">
                                 <span class="inline-flex items-center px-3.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-900 text-xs font-bold font-mono">fa-solid</span>
-                                <input type="text" id="input-custom-logo" oninput="handleCustomLogoInput(this.value)" placeholder="fa-gem" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all font-mono">
+                                <input type="text" id="input-custom-logo" oninput="handleCustomLogoInput(this.value)" placeholder="fa-gem" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm focus:ring-2 focus:ring-brand-500 font-mono">
                             </div>
-                            <p class="text-[10px] text-slate-400 dark:text-zinc-500 mt-2">
-                                Masukkan nama class ikon FontAwesome v6 (misalnya: <code class="font-mono bg-slate-100 dark:bg-zinc-900 px-1 py-0.5 rounded text-brand-500">fa-gem</code>, <code class="font-mono bg-slate-100 dark:bg-zinc-900 px-1 py-0.5 rounded text-brand-500">fa-coffee</code>, <code class="font-mono bg-slate-100 dark:bg-zinc-900 px-1 py-0.5 rounded text-brand-500">fa-brain</code>).
-                            </p>
                         </div>
 
-                        <button id="btn-save-appearance" onclick="saveAppearanceSettings()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                        <button onclick="saveAppearanceSettings()" id="btn-save-appearance" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2">
                             <i id="icon-save-appearance" class="fa-solid fa-circle-check"></i>
-                            <span id="text-save-appearance">Simpan Perubahan Tampilan</span>
+                            <span id="text-save-appearance">Simpan Tampilan</span>
                         </button>
                     </div>
                 </div>
 
-            </div> <!-- Tab Content Frame End -->
+            </div>
 
-            <!-- Modal Footer (Static - Locked outside scroll container) -->
             <div class="border-t border-slate-100 dark:border-zinc-700 p-6 pt-4 flex justify-end bg-white dark:bg-zinc-800">
-                <button onclick="closeAppSettingsModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
-                    Tutup
-                </button>
+                <button onclick="closeAppSettingsModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">Tutup</button>
             </div>
         </div>
     </div>
@@ -808,13 +676,11 @@ function doPost(e) {
                 <i class="fa-solid fa-trash-can-arrow-up"></i>
             </div>
             <div>
-                <h3 class="font-bold text-lg mb-2">Bersihkan Tugas Selesai?</h3>
-                <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed" id="clear-modal-text">Anda akan menghapus tugas yang sudah selesai secara permanen. Tindakan ini tidak dapat dibatalkan.</p>
+                <h3 class="font-bold text-lg mb-2">Bersihkan Tugas?</h3>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed" id="clear-modal-text">Anda akan menghapus tugas selesai.</p>
             </div>
             <div class="flex gap-3">
-                <button onclick="closeClearCompletedModal()" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all text-slate-600 dark:text-zinc-300">
-                    Batal
-                </button>
+                <button onclick="closeClearCompletedModal()" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all text-slate-600 dark:text-zinc-300">Batal</button>
                 <button onclick="executeClearCompleted()" id="btn-confirm-clear" class="flex-1 px-4 py-3 rounded-xl bg-rose-500 text-white text-sm font-bold shadow-lg shadow-rose-500/20 hover:bg-rose-600 active:scale-95 transition-all flex items-center justify-center gap-2">
                     <span>Ya, Bersihkan</span>
                 </button>
@@ -822,18 +688,16 @@ function doPost(e) {
         </div>
     </div>
 
-    <!-- Main Core JavaScript Logic -->
+    <!-- Main JavaScript Logic -->
     <script>
-        // Global States
         let tasks = [];
         let activeFilter = 'Semua';
-        let activeCategory = 'Kantor'; // Default active category tab
+        let activeCategory = 'Kantor'; 
         let isEditing = false;
         let isDarkMode = false;
         let webAppUrl = '';
         let countdownIntervalId = null;
 
-        // Custom Appearance States & Palettes
         let selectedColor = 'indigo';
         let selectedLogo = 'fa-square-check';
 
@@ -846,24 +710,19 @@ function doPost(e) {
             violet: { 50: '#f5f3ff', 100: '#ede9fe', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', accent: '#7c3aed' }
         };
 
-        // Hex to RGB color helper functions for dynamic kustom color calculation
         function hexToRgb(hex) {
             let h = hex.replace('#', '');
-            if (h.length === 3) {
-                h = h.split('').map(char => char + char).join('');
-            }
+            if (h.length === 3) h = h.split('').map(char => char + char).join('');
             const r = parseInt(h.slice(0, 2), 16);
             const g = parseInt(h.slice(2, 4), 16);
             const b = parseInt(h.slice(4, 6), 16);
             return { r, g, b };
         }
 
-        // Convert RGB to HEX
         function rgbToHex(r, g, b) {
             return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
         }
 
-        // Blends custom color mathematically with white or black to create beautiful shades
         function blendColor(hex, targetHex, percentage) {
             try {
                 const c1 = hexToRgb(hex);
@@ -872,31 +731,24 @@ function doPost(e) {
                 const g = Math.round(c1.g + (c2.g - c1.g) * percentage);
                 const b = Math.round(c1.b + (c2.b - c1.b) * percentage);
                 return rgbToHex(r, g, b);
-            } catch (e) {
-                return hex;
-            }
+            } catch (e) { return hex; }
         }
 
-        // Helper to convert HEX into space-separated RGB triplet string
         function hexToRgbString(hex) {
             try {
                 const rgb = hexToRgb(hex);
                 return `${rgb.r} ${rgb.g} ${rgb.b}`;
-            } catch (e) {
-                return "99 102 241"; // Default Indigo fallback
-            }
+            } catch (e) { return "99 102 241"; }
         }
 
-        // Security PIN and Banner States
-        let currentPin = '2911'; // Default PIN
+        let currentPin = '2911'; 
         let enteredPin = '';
         let appLocked = true;
         let lastActivityTime = Date.now();
-        let sessionDuration = 10; // Default session timeout in minutes
+        let sessionDuration = 10; 
         let bannerTitle = 'Halo Sahabat Produktif! 👋';
         let bannerSubtitle = 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.';
 
-        // Local Storage Keys
         const STORAGE_KEY_TASKS = 'prioritask_local_tasks';
         const STORAGE_KEY_DARK_MODE = 'prioritask_dark_mode';
         const STORAGE_KEY_API_URL = 'prioritask_api_url';
@@ -906,37 +758,25 @@ function doPost(e) {
         const STORAGE_KEY_BANNER_SUBTITLE = 'prioritask_banner_subtitle';
         const STORAGE_KEY_IN_PROGRESS_IDS = 'prioritask_inprogress_ids';
 
-        // Initial Setup on DOM Loaded
         window.addEventListener('DOMContentLoaded', () => {
-            // Set Target Tanggal minimal hari ini
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('task-target-date').min = today;
             document.getElementById('task-target-date').value = today;
 
-            // Load Saved Preferences
             loadPreferences();
-            
-            // Fetch/Init Tasks Data
             fetchTasks();
-
-            // Bind Keyboard listeners for PIN
             initKeyboardPin();
-
-            // Start Smart Inactivity Watchdog
             initInactivityWatcher();
         });
 
-        // App Appearance Config Live Handlers
         function setBaseColor(colorName) {
             selectedColor = colorName;
             const root = document.documentElement;
             const customPreview = document.getElementById('custom-color-preview');
             const customPickerLabel = document.getElementById('color-opt-custom');
-
             const presets = ['indigo', 'emerald', 'blue', 'amber', 'rose', 'violet'];
 
             if (presets.includes(colorName)) {
-                // Preset loading flow
                 const palette = COLOR_PALETTES[colorName] || COLOR_PALETTES.indigo;
                 root.style.setProperty('--color-brand-50', hexToRgbString(palette[50]));
                 root.style.setProperty('--color-brand-100', hexToRgbString(palette[100]));
@@ -945,11 +785,9 @@ function doPost(e) {
                 root.style.setProperty('--color-brand-700', hexToRgbString(palette[700]));
                 root.style.setProperty('--color-accent-500', hexToRgbString(palette.accent));
 
-                // Reset custom label preview
                 if (customPreview) customPreview.style.background = 'linear-gradient(to tr, #ec4899, #ef4444, #eab308)';
                 if (customPickerLabel) customPickerLabel.className = "relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer";
             } else if (colorName.startsWith('#')) {
-                // Custom HEX Color flow
                 const c50 = blendColor(colorName, '#ffffff', 0.93);
                 const c100 = blendColor(colorName, '#ffffff', 0.84);
                 const c500 = colorName;
@@ -981,9 +819,7 @@ function doPost(e) {
             });
         }
 
-        function handleCustomColor(val) {
-            setBaseColor(val);
-        }
+        function handleCustomColor(val) { setBaseColor(val); }
 
         function setAppLogo(logoClass) {
             selectedLogo = logoClass;
@@ -992,30 +828,21 @@ function doPost(e) {
                 const isSolidPreset = logoClass.startsWith('fa-');
                 logoIcon.className = isSolidPreset ? `fa-solid ${logoClass} text-lg sm:text-xl` : `${logoClass} text-lg sm:text-xl`;
             }
-
-            const presetLogos = [
-                'fa-square-check', 'fa-star', 'fa-fire', 'fa-rocket', 'fa-list-check', 'fa-bolt',
-                'fa-crown', 'fa-seedling', 'fa-briefcase', 'fa-house', 'fa-laptop-code', 'fa-graduation-cap',
-                'fa-heart', 'fa-trophy', 'fa-bell', 'fa-calendar-days', 'fa-bullseye', 'fa-lightbulb'
-            ];
-            
+            const presetLogos = ['fa-square-check', 'fa-star', 'fa-fire', 'fa-rocket', 'fa-list-check', 'fa-bolt'];
             let matchedPreset = false;
-
             presetLogos.forEach(logo => {
                 const btn = document.getElementById(`logo-opt-${logo}`);
                 if (btn) {
                     if (logo === logoClass) {
-                        btn.className = "p-3 rounded-xl border-2 border-brand-500 bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all shadow-md";
+                        btn.className = "p-3 rounded-xl border-2 border-brand-500 bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg hover:border-brand-500 transition-all shadow-md";
                         matchedPreset = true;
                     } else {
-                        btn.className = "p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg text-slate-700 dark:text-zinc-300 hover:border-brand-500 transition-all";
+                        btn.className = "p-3 rounded-xl border-2 border-transparent bg-slate-50 dark:bg-zinc-800 flex items-center justify-center text-lg hover:border-brand-500 transition-all";
                     }
                 }
             });
-
             const badge = document.getElementById('logo-badge-preview');
             const customInput = document.getElementById('input-custom-logo');
-            
             if (badge) {
                 if (matchedPreset) {
                     badge.className = "text-[10px] bg-brand-100 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400 px-2.5 py-0.5 rounded-full font-bold";
@@ -1024,20 +851,15 @@ function doPost(e) {
                 } else {
                     badge.className = "text-[10px] bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 px-2.5 py-0.5 rounded-full font-bold animate-pulse";
                     badge.innerText = "Kustom Aktif";
-                    if (customInput && customInput.value !== logoClass) {
-                        customInput.value = logoClass;
-                    }
+                    if (customInput && customInput.value !== logoClass) customInput.value = logoClass;
                 }
             }
         }
 
         function handleCustomLogoInput(val) {
             const cleanVal = val.trim();
-            if (cleanVal) {
-                setAppLogo(cleanVal);
-            } else {
-                setAppLogo('fa-square-check');
-            }
+            if (cleanVal) setAppLogo(cleanVal);
+            else setAppLogo('fa-square-check');
         }
 
         function changeCategoryTab(category) {
@@ -1052,7 +874,6 @@ function doPost(e) {
                 tabRumah.className = "flex-1 py-4 text-sm font-bold border-b-2 border-brand-500 text-brand-600 dark:text-brand-500 flex items-center justify-center gap-2 transition-all duration-200";
                 tabKantor.className = "flex-1 py-4 text-sm font-bold border-b-2 border-transparent text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 flex items-center justify-center gap-2 transition-all duration-200";
             }
-
             filterAndRenderTasks();
             updateStatistics();
         }
@@ -1076,34 +897,24 @@ function doPost(e) {
             }
         }
 
-        function updateDurationDisplay(val) {
-            document.getElementById('duration-display').innerText = `${val} Jam`;
-        }
+        function updateDurationDisplay(val) { document.getElementById('duration-display').innerText = `${val} Jam`; }
 
         function openDatabaseModal() {
             document.getElementById('web-app-url-input').value = webAppUrl;
             document.getElementById('database-modal').classList.remove('hidden');
         }
-
-        function closeDatabaseModal() {
-            document.getElementById('database-modal').classList.add('hidden');
-        }
+        function closeDatabaseModal() { document.getElementById('database-modal').classList.add('hidden'); }
 
         function openAppSettingsModal() {
             document.getElementById('input-session-duration').value = sessionDuration;
             document.getElementById('input-banner-title').value = bannerTitle;
             document.getElementById('input-banner-subtitle').value = bannerSubtitle;
-            
             setBaseColor(selectedColor);
             setAppLogo(selectedLogo);
-
             switchAppSettingsTab('security');
             document.getElementById('app-settings-modal').classList.remove('hidden');
         }
-
-        function closeAppSettingsModal() {
-            document.getElementById('app-settings-modal').classList.add('hidden');
-        }
+        function closeAppSettingsModal() { document.getElementById('app-settings-modal').classList.add('hidden'); }
 
         function switchAppSettingsTab(tabName) {
             const btnSecurity = document.getElementById('set-tab-security');
@@ -1113,24 +924,14 @@ function doPost(e) {
             const contentBanner = document.getElementById('settings-content-banner');
             const contentAppearance = document.getElementById('settings-content-appearance');
 
-            if (contentSecurity) {
-                if (tabName === 'security') contentSecurity.classList.remove('hidden');
-                else contentSecurity.classList.add('hidden');
-            }
-            if (contentBanner) {
-                if (tabName === 'banner') contentBanner.classList.remove('hidden');
-                else contentBanner.classList.add('hidden');
-            }
-            if (contentAppearance) {
-                if (tabName === 'appearance') contentAppearance.classList.remove('hidden');
-                else contentAppearance.classList.add('hidden');
-            }
+            if (contentSecurity) contentSecurity.classList.toggle('hidden', tabName !== 'security');
+            if (contentBanner) contentBanner.classList.toggle('hidden', tabName !== 'banner');
+            if (contentAppearance) contentAppearance.classList.toggle('hidden', tabName !== 'appearance');
 
             const updateButtonTab = (btn, isActive) => {
                 if (!btn) return;
                 const activeClasses = ['border-brand-500', 'text-brand-600', 'dark:text-brand-500'];
                 const inactiveClasses = ['border-transparent', 'text-slate-400', 'dark:text-zinc-500'];
-                
                 if (isActive) {
                     inactiveClasses.forEach(c => btn.classList.remove(c));
                     activeClasses.forEach(c => btn.classList.add(c));
@@ -1155,14 +956,12 @@ function doPost(e) {
             btnText.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i>Menghubungkan...`;
 
             await new Promise(resolve => setTimeout(resolve, 850));
-
             webAppUrl = urlInput;
             localStorage.setItem(STORAGE_KEY_API_URL, urlInput);
 
             btn.disabled = false;
             btn.classList.remove('opacity-80', 'cursor-not-allowed');
-            btnText.innerHTML = `Hubungkan Database`;
-
+            btnText.innerHTML = `Hubungkan`;
             closeDatabaseModal();
 
             setTimeout(() => {
@@ -1184,7 +983,7 @@ function doPost(e) {
             } else {
                 badge.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-700 text-brand-600 dark:text-brand-400 cursor-pointer";
                 dot.className = "w-2 h-2 rounded-full bg-brand-500";
-                text.innerText = "Penyimpanan Lokal (Demo)";
+                text.innerText = "Penyimpanan Lokal";
             }
         }
 
@@ -1196,7 +995,6 @@ function doPost(e) {
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-
             showToast('Kode Disalin!', 'Tempel kode tersebut di bagian Google Apps Script Anda.', 'success');
         }
 
@@ -1217,7 +1015,6 @@ function doPost(e) {
 
             selectedLogo = localStorage.getItem('prioritask_app_logo') || 'fa-square-check';
             setAppLogo(selectedLogo);
-
             updateBannerUI();
         }
 
@@ -1251,42 +1048,17 @@ function doPost(e) {
             });
 
             const pinConfig = configRows.find(c => c.id === 'cfg_pin');
-            if (pinConfig) {
-                currentPin = pinConfig.title;
-                localStorage.setItem(STORAGE_KEY_PIN, currentPin);
-            }
-
+            if (pinConfig) { currentPin = pinConfig.title; localStorage.setItem(STORAGE_KEY_PIN, currentPin); }
             const sessionConfig = configRows.find(c => c.id === 'cfg_session_duration');
-            if (sessionConfig) {
-                sessionDuration = parseInt(sessionConfig.title) || 10;
-                localStorage.setItem(STORAGE_KEY_SESSION_DURATION, sessionDuration);
-            }
-
+            if (sessionConfig) { sessionDuration = parseInt(sessionConfig.title) || 10; localStorage.setItem(STORAGE_KEY_SESSION_DURATION, sessionDuration); }
             const titleConfig = configRows.find(c => c.id === 'cfg_banner_title');
-            if (titleConfig) {
-                bannerTitle = titleConfig.title;
-                localStorage.setItem(STORAGE_KEY_BANNER_TITLE, bannerTitle);
-            }
-
+            if (titleConfig) { bannerTitle = titleConfig.title; localStorage.setItem(STORAGE_KEY_BANNER_TITLE, bannerTitle); }
             const subtitleConfig = configRows.find(c => c.id === 'cfg_banner_subtitle');
-            if (subtitleConfig) {
-                bannerSubtitle = subtitleConfig.title;
-                localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, bannerSubtitle);
-            }
-
+            if (subtitleConfig) { bannerSubtitle = subtitleConfig.title; localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, bannerSubtitle); }
             const colorConfig = configRows.find(c => c.id === 'cfg_base_color');
-            if (colorConfig) {
-                selectedColor = colorConfig.title;
-                localStorage.setItem('prioritask_theme_color', selectedColor);
-                setBaseColor(selectedColor);
-            }
-
+            if (colorConfig) { selectedColor = colorConfig.title; localStorage.setItem('prioritask_theme_color', selectedColor); setBaseColor(selectedColor); }
             const logoConfig = configRows.find(c => c.id === 'cfg_app_logo');
-            if (logoConfig) {
-                selectedLogo = logoConfig.title;
-                localStorage.setItem('prioritask_app_logo', selectedLogo);
-                setAppLogo(selectedLogo);
-            }
+            if (logoConfig) { selectedLogo = logoConfig.title; localStorage.setItem('prioritask_app_logo', selectedLogo); setAppLogo(selectedLogo); }
 
             updateBannerUI();
             showShimmer(false);
@@ -1297,7 +1069,6 @@ function doPost(e) {
         function getLocalDataAll() {
             const localTasks = localStorage.getItem(STORAGE_KEY_TASKS);
             let parsed = localTasks ? JSON.parse(localTasks) : [];
-
             const localPin = localStorage.getItem(STORAGE_KEY_PIN) || '2911';
             const localSession = localStorage.getItem(STORAGE_KEY_SESSION_DURATION) || '10';
             const localTitle = localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋';
@@ -1305,24 +1076,12 @@ function doPost(e) {
             const localColor = localStorage.getItem('prioritask_theme_color') || 'indigo';
             const localLogo = localStorage.getItem('prioritask_app_logo') || 'fa-square-check';
 
-            if (!parsed.some(t => t.id === 'cfg_pin')) {
-                parsed.push({ id: 'cfg_pin', title: localPin, priority: 'config' });
-            }
-            if (!parsed.some(t => t.id === 'cfg_session_duration')) {
-                parsed.push({ id: 'cfg_session_duration', title: localSession, priority: 'config' });
-            }
-            if (!parsed.some(t => t.id === 'cfg_banner_title')) {
-                parsed.push({ id: 'cfg_banner_title', title: localTitle, priority: 'config' });
-            }
-            if (!parsed.some(t => t.id === 'cfg_banner_subtitle')) {
-                parsed.push({ id: 'cfg_banner_subtitle', title: localSub, priority: 'config' });
-            }
-            if (!parsed.some(t => t.id === 'cfg_base_color')) {
-                parsed.push({ id: 'cfg_base_color', title: localColor, priority: 'config' });
-            }
-            if (!parsed.some(t => t.id === 'cfg_app_logo')) {
-                parsed.push({ id: 'cfg_app_logo', title: localLogo, priority: 'config' });
-            }
+            if (!parsed.some(t => t.id === 'cfg_pin')) parsed.push({ id: 'cfg_pin', title: localPin, priority: 'config' });
+            if (!parsed.some(t => t.id === 'cfg_session_duration')) parsed.push({ id: 'cfg_session_duration', title: localSession, priority: 'config' });
+            if (!parsed.some(t => t.id === 'cfg_banner_title')) parsed.push({ id: 'cfg_banner_title', title: localTitle, priority: 'config' });
+            if (!parsed.some(t => t.id === 'cfg_banner_subtitle')) parsed.push({ id: 'cfg_banner_subtitle', title: localSub, priority: 'config' });
+            if (!parsed.some(t => t.id === 'cfg_base_color')) parsed.push({ id: 'cfg_base_color', title: localColor, priority: 'config' });
+            if (!parsed.some(t => t.id === 'cfg_app_logo')) parsed.push({ id: 'cfg_app_logo', title: localLogo, priority: 'config' });
             return parsed;
         }
 
@@ -1348,7 +1107,6 @@ function doPost(e) {
 
         async function handleFormSubmit(event) {
             event.preventDefault();
-
             const id = document.getElementById('task-id').value;
             const title = document.getElementById('task-title').value.trim();
             const priority = document.getElementById('task-priority').value;
@@ -1360,15 +1118,8 @@ function doPost(e) {
 
             const taskPayload = {
                 id: id || 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-                title,
-                priority,
-                duration,
-                category,
-                targetDate,
-                completed: false,
-                inProgress: false
+                title, priority, duration, category, targetDate, completed: false, inProgress: false
             };
-
             const isEditOperation = !!id;
 
             showLoadingStateOnButton(true, isEditOperation);
@@ -1377,12 +1128,10 @@ function doPost(e) {
                 const actionType = isEditOperation ? 'update' : 'create';
                 try {
                     await fetch(webAppUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
+                        method: 'POST', mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: actionType, ...taskPayload })
                     });
-                    
                     if (isEditOperation) {
                         const index = tasks.findIndex(t => t.id === id);
                         if (index !== -1) {
@@ -1390,9 +1139,7 @@ function doPost(e) {
                             taskPayload.inProgress = tasks[index].inProgress;
                             tasks[index] = taskPayload;
                         }
-                    } else {
-                        tasks.unshift(taskPayload);
-                    }
+                    } else { tasks.unshift(taskPayload); }
                     saveLocalTasks(); 
                 } catch (error) {
                     showToast('Gagal Sinkronisasi!', 'Tugas gagal dikirim ke spreadsheet.', 'warning');
@@ -1405,21 +1152,13 @@ function doPost(e) {
                         taskPayload.inProgress = tasks[index].inProgress;
                         tasks[index] = taskPayload;
                     }
-                } else {
-                    tasks.unshift(taskPayload);
-                }
+                } else { tasks.unshift(taskPayload); }
                 saveLocalTasks();
             }
 
-            showToast(
-                isEditOperation ? 'Tugas Diperbarui!' : 'Tugas Baru Ditambahkan!',
-                `Tugas "${title.substring(0, 30)}..." berhasil ${isEditOperation ? 'diedit' : 'dijadwalkan'}.`,
-                'success'
-            );
-
+            showToast(isEditOperation ? 'Tugas Diperbarui!' : 'Tugas Baru Ditambahkan!', `Tugas "${title.substring(0, 30)}..." berhasil.`, 'success');
             showLoadingStateOnButton(false, isEditOperation);
             resetForm();
-            
             changeCategoryTab(category);
             updateStatistics();
 
@@ -1439,34 +1178,28 @@ function doPost(e) {
 
             const newState = !tasks[index].inProgress;
             tasks[index].inProgress = newState;
-
-            if (newState) {
-                tasks[index].completed = false;
-            }
+            if (newState) tasks[index].completed = false;
 
             let inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
             if (newState) {
-                if (!inProgressIds.includes(id)) {
-                    inProgressIds.push(id);
-                }
+                if (!inProgressIds.includes(id)) inProgressIds.push(id);
             } else {
                 inProgressIds = inProgressIds.filter(item => item !== id);
             }
             localStorage.setItem(STORAGE_KEY_IN_PROGRESS_IDS, JSON.stringify(inProgressIds));
-
             saveLocalTasks();
 
             if (newState) {
-                showToast('Tugas Dimulai! ⚡', `Mulai mengerjakan "${tasks[index].title.substring(0, 30)}...". Fokus dan semangat!`, 'info');
+                showToast('Tugas Dimulai! ⚡', `Mulai mengerjakan "${tasks[index].title.substring(0, 30)}...". Fokus!`, 'info');
             } else {
-                showToast('Tugas Dijeda ⏸️', `Pengerjaan tugas "${tasks[index].title.substring(0, 30)}..." ditangguhkan sementara.`, 'info');
+                showToast('Tugas Dijeda ⏸️', `Pengerjaan tugas "${tasks[index].title.substring(0, 30)}..." ditangguhkan.`, 'info');
             }
 
             filterAndRenderTasks();
             updateStatistics();
         }
 
-        async function toggleTaskComplete(id) {
+        function toggleTaskComplete(id) {
             const index = tasks.findIndex(t => t.id === id);
             if (index === -1) return;
 
@@ -1478,59 +1211,47 @@ function doPost(e) {
                 let inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
                 inProgressIds = inProgressIds.filter(item => item !== id);
                 localStorage.setItem(STORAGE_KEY_IN_PROGRESS_IDS, JSON.stringify(inProgressIds));
-            }
-
-            if (isDoneNow) {
+                
                 confetti({
-                    particleCount: 80,
-                    spread: 60,
-                    origin: { y: 0.8 },
+                    particleCount: 80, spread: 60, origin: { y: 0.8 },
                     colors: ['#6366f1', '#4f46e5', '#10b981', '#fbbf24']
                 });
-                showToast('Tugas Terselesaikan! 🎉', `Mantap! "${tasks[index].title.substring(0, 30)}..." telah selesai dilakukan.`, 'success');
+                showToast('Tugas Terselesaikan! 🎉', `Mantap! "${tasks[index].title.substring(0, 30)}..." telah selesai.`, 'success');
             } else {
                 showToast('Tugas Dibuka Kembali 🔄', `Status tugas diatur ulang menjadi belum selesai.`, 'info');
             }
 
-            if (webAppUrl) {
-                try {
-                    await fetch(webAppUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'update', ...tasks[index] })
-                    });
-                } catch (e) {}
-            }
             saveLocalTasks();
             filterAndRenderTasks();
             updateStatistics();
+
+            if (webAppUrl) {
+                fetch(webAppUrl, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'update', ...tasks[index] })
+                }).catch(e => console.error(e));
+            }
         }
 
-        async function deleteTask(id, title) {
-            if (webAppUrl) {
-                try {
-                    await fetch(webAppUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'delete', id: id })
-                    });
-                } catch (e) {}
-            }
-            
+        function deleteTask(id, title) {
             tasks = tasks.filter(t => t.id !== id);
-            
             let inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
             inProgressIds = inProgressIds.filter(item => item !== id);
             localStorage.setItem(STORAGE_KEY_IN_PROGRESS_IDS, JSON.stringify(inProgressIds));
 
             saveLocalTasks();
-            
-            showToast('Tugas Terhapus!', `Tugas "${title.substring(0, 25)}..." telah sukses dibuang dari daftar.`, 'warning');
-            
             filterAndRenderTasks();
             updateStatistics();
+            showToast('Tugas Terhapus!', `Tugas "${title.substring(0, 25)}..." telah sukses dibuang.`, 'warning');
+
+            if (webAppUrl) {
+                fetch(webAppUrl, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', id: id })
+                }).catch(e => console.error(e));
+            }
         }
 
         function editTask(id) {
@@ -1548,18 +1269,14 @@ function doPost(e) {
             updateDurationDisplay(task.duration);
             
             let targetDateVal = task.targetDate;
-            if (targetDateVal.includes('T')) {
-                targetDateVal = targetDateVal.split('T')[0];
-            }
+            if (targetDateVal.includes('T')) targetDateVal = targetDateVal.split('T')[0];
             document.getElementById('task-target-date').value = targetDateVal;
-
             document.querySelector(`input[name="task-category"][value="${task.category}"]`).checked = true;
 
-            document.getElementById('submit-btn-text').innerText = "Perbarui Perubahan Tugas";
+            document.getElementById('submit-btn-text').innerText = "Perbarui Tugas";
             document.getElementById('submit-btn-icon').className = "fa-solid fa-file-pen";
-            
             document.getElementById('task-title').focus();
-            showToast('Mode Edit Hack', 'Formulir telah diisi sesuai data tugas terpilih.', 'info');
+            showToast('Mode Edit', 'Formulir telah diisi sesuai data tugas terpilih.', 'info');
         }
 
         function resetForm() {
@@ -1583,13 +1300,7 @@ function doPost(e) {
 
         function changeActiveFilter(filterType) {
             activeFilter = filterType;
-            
-            const filterIds = {
-                'Semua': 'filter-all',
-                'Tinggi': 'filter-high',
-                'Sedang': 'filter-medium',
-                'Rendah': 'filter-low'
-            };
+            const filterIds = { 'Semua': 'filter-all', 'Tinggi': 'filter-high', 'Sedang': 'filter-medium', 'Rendah': 'filter-low' };
 
             for (const key in filterIds) {
                 const btn = document.getElementById(filterIds[key]);
@@ -1600,18 +1311,14 @@ function doPost(e) {
                     if (key === 'Tinggi') colorHover = "hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:text-rose-500";
                     if (key === 'Sedang') colorHover = "hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:text-amber-500";
                     if (key === 'Rendah') colorHover = "hover:bg-emerald-50 dark:hover:bg-emerald-950/20 hover:text-emerald-500";
-
                     btn.className = `px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap bg-slate-50 dark:bg-zinc-900 text-slate-500 transition-all duration-200 ${colorHover}`;
                 }
             }
-
             filterAndRenderTasks();
         }
 
         function initRealtimeCountdowns() {
-            if (countdownIntervalId) {
-                clearInterval(countdownIntervalId);
-            }
+            if (countdownIntervalId) clearInterval(countdownIntervalId);
 
             countdownIntervalId = setInterval(() => {
                 const timerElements = document.querySelectorAll('.task-countdown-element');
@@ -1620,25 +1327,20 @@ function doPost(e) {
                 timerElements.forEach(el => {
                     const deadlineMs = parseInt(el.getAttribute('data-deadline'));
                     const taskId = el.getAttribute('data-task-id');
-                    const now = Date.now();
-                    const diff = deadlineMs - now;
+                    const diff = deadlineMs - Date.now();
 
                     if (diff <= 0) {
                         el.innerHTML = `<span class="text-rose-500 font-extrabold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation animate-bounce"></i> Waktu Habis!</span>`;
                         const container = document.getElementById(`countdown-badge-${taskId}`);
-                        if (container) {
-                            container.className = "flex items-center gap-1.5 text-[11px] bg-rose-50 dark:bg-rose-950/20 px-2.5 py-1 rounded-xl text-rose-500 border border-rose-200/50 dark:border-rose-900/30 ml-auto transition-all";
-                        }
+                        if (container) container.className = "flex items-center gap-1.5 text-[11px] bg-rose-50 dark:bg-rose-950/20 px-2.5 py-1 rounded-xl text-rose-500 border border-rose-200/50 dark:border-rose-900/30 ml-auto transition-all";
                     } else {
                         const hours = Math.floor(diff / (1000 * 60 * 60));
                         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-                        let outputStr = `<span class="font-extrabold text-brand-600 dark:text-brand-500">${String(hours).padStart(2, '0')}</span>j ` +
+                        el.innerHTML = `<span class="font-extrabold text-brand-600 dark:text-brand-500">${String(hours).padStart(2, '0')}</span>j ` +
                                     `<span class="font-extrabold text-brand-600 dark:text-brand-500">${String(minutes).padStart(2, '0')}</span>m ` +
                                     `<span class="font-extrabold text-brand-600 dark:text-brand-500">${String(seconds).padStart(2, '0')}</span>d`;
-
-                        el.innerHTML = outputStr;
                     }
                 });
             }, 1000);
@@ -1649,21 +1351,14 @@ function doPost(e) {
             const listContainer = document.getElementById('task-list-element');
             
             let filtered = tasks.filter(t => t.category === activeCategory);
-
-            if (activeFilter !== 'Semua') {
-                filtered = filtered.filter(t => t.priority === activeFilter);
-            }
-
-            if (searchKeyword) {
-                filtered = filtered.filter(t => t.title.toLowerCase().includes(searchKeyword));
-            }
+            if (activeFilter !== 'Semua') filtered = filtered.filter(t => t.priority === activeFilter);
+            if (searchKeyword) filtered = filtered.filter(t => t.title.toLowerCase().includes(searchKeyword));
 
             const activeKantorTasks = tasks.filter(t => t.category === 'Kantor' && !t.completed).length;
             const activeRumahTasks = tasks.filter(t => t.category === 'Rumah' && !t.completed).length;
 
             document.getElementById('badge-count-kantor').innerText = activeKantorTasks;
             document.getElementById('badge-count-rumah').innerText = activeRumahTasks;
-
             document.getElementById('task-showing-count').innerText = `Menampilkan ${filtered.length} tugas`;
 
             if (filtered.length === 0) {
@@ -1673,7 +1368,7 @@ function doPost(e) {
                             <i class="fa-solid fa-clipboard-list text-2xl"></i>
                         </div>
                         <h4 class="font-bold text-slate-700 dark:text-zinc-300">Belum Ada Tugas</h4>
-                        <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1 max-w-xs">Tidak ada tugas di kategori ${activeCategory} dengan filter yang dipilih.</p>
+                        <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1 max-w-xs">Tidak ada tugas di kategori ${activeCategory}.</p>
                     </div>
                 `;
                 return;
@@ -1683,42 +1378,30 @@ function doPost(e) {
             filtered.forEach((task, index) => {
                 let priorityColor = '';
                 let priorityLabel = '';
-                if (task.priority === 'Tinggi') {
-                    priorityColor = 'bg-rose-50 text-rose-500 border-rose-100 dark:bg-rose-950/20 dark:border-rose-900/30';
-                    priorityLabel = '🔴 Tinggi';
-                } else if (task.priority === 'Sedang') {
-                    priorityColor = 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:border-amber-900/30';
-                    priorityLabel = '🟡 Sedang';
-                } else {
-                    priorityColor = 'bg-emerald-50 text-emerald-500 border-emerald-100 dark:bg-emerald-950/20 dark:border-emerald-900/30';
-                    priorityLabel = '🟢 Rendah';
-                }
+                if (task.priority === 'Tinggi') { priorityColor = 'bg-rose-50 text-rose-500 border-rose-100 dark:bg-rose-950/20 dark:border-rose-900/30'; priorityLabel = '🔴 Tinggi'; } 
+                else if (task.priority === 'Sedang') { priorityColor = 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:border-amber-900/30'; priorityLabel = '🟡 Sedang'; } 
+                else { priorityColor = 'bg-emerald-50 text-emerald-500 border-emerald-100 dark:bg-emerald-950/20 dark:border-emerald-900/30'; priorityLabel = '🟢 Rendah'; }
 
                 const catIcon = task.category === 'Kantor' ? 'fa-briefcase' : 'fa-house-chimney';
                 const catBg = task.category === 'Kantor' ? 'bg-indigo-50 text-indigo-500 dark:bg-indigo-950/20' : 'bg-fuchsia-50 text-fuchsia-500 dark:bg-fuchsia-950/20';
-
                 const targetFormatted = task.targetDate ? formatDateString(task.targetDate) : '-';
+                const titleStyle = task.completed ? 'line-through text-slate-400 dark:text-zinc-500 font-medium' : 'font-semibold';
+                
+                let cardStyle = '';
+                if (task.completed) {
+                    cardStyle = 'opacity-70 bg-slate-50/50 dark:bg-zinc-800/40 border-slate-200 dark:border-zinc-700';
+                } else if (task.inProgress) {
+                    cardStyle = 'bg-brand-50/60 dark:bg-brand-900/20 border-pulse-active transform scale-[1.02]';
+                } else {
+                    cardStyle = 'bg-white dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 hover:shadow-md hover:-translate-y-0.5';
+                }
 
-            const titleStyle = task.completed ? 'line-through text-slate-400 dark:text-zinc-500 font-medium' : 'font-semibold';
-            
-            let cardStyle = '';
-            if (task.completed) {
-                cardStyle = 'opacity-70 bg-slate-50/50 dark:bg-zinc-800/40 border-slate-200 dark:border-zinc-700';
-            } else if (task.inProgress) {
-                cardStyle = 'bg-brand-50/60 dark:bg-brand-900/20 border-pulse-active transform scale-[1.02]';
-            } else {
-                cardStyle = 'bg-white dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 hover:shadow-md hover:-translate-y-0.5';
-            }
-
-            let createdAt = Date.now();
-            if (task.id && task.id.startsWith('id-')) {
+                let createdAt = Date.now();
+                if (task.id && task.id.startsWith('id-')) {
                     const idParts = task.id.split('-');
-                    if (idParts[1] && !isNaN(idParts[1])) {
-                        createdAt = parseInt(idParts[1]);
-                    }
+                    if (idParts[1] && !isNaN(idParts[1])) createdAt = parseInt(idParts[1]);
                 }
                 const deadlineTimestamp = createdAt + (task.duration * 60 * 60 * 1000);
-
                 const delayStyle = `animation-delay: ${index * 60}ms;`;
 
                 const cardHtml = `
@@ -1729,17 +1412,11 @@ function doPost(e) {
 
                         <div class="flex-1 min-w-0">
                             <div class="flex flex-wrap gap-2 items-center mb-2">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${priorityColor}">
-                                    ${priorityLabel}
-                                </span>
-                                <span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${catBg}">
-                                    <i class="fa-solid ${catIcon}"></i>
-                                    ${task.category}
-                                </span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${priorityColor}">${priorityLabel}</span>
+                                <span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${catBg}"><i class="fa-solid ${catIcon}"></i>${task.category}</span>
                                 ${task.inProgress && !task.completed ? `
                                     <span class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/30 animate-pulse">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                                        ⚡ Sedang Dikerjakan
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>⚡ Sedang Dikerjakan
                                     </span>
                                 ` : ''}
                                 ${!task.completed ? `
@@ -1749,24 +1426,17 @@ function doPost(e) {
                                     </div>
                                 ` : `
                                     <div class="flex items-center gap-1.5 text-[11px] bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-0.5 rounded-lg text-emerald-600 dark:text-emerald-400 border border-emerald-100/20 dark:border-emerald-900/20 ml-auto font-extrabold">
-                                        <i class="fa-solid fa-check-double text-emerald-500"></i>
-                                        <span>Selesai</span>
+                                        <i class="fa-solid fa-check-double text-emerald-500"></i><span>Selesai</span>
                                     </div>
                                 `}
                             </div>
-
-                            <h4 class="text-sm break-words transition-colors leading-relaxed ${titleStyle}">
-                                ${task.title}
-                            </h4>
-
+                            <h4 class="text-sm break-words transition-colors leading-relaxed ${titleStyle}">${task.title}</h4>
                             <div class="flex flex-wrap items-center gap-3 mt-4 border-t border-slate-100 dark:border-zinc-700/50 pt-3">
                                 <div class="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-zinc-500 font-semibold">
-                                    <i class="fa-regular fa-calendar text-brand-500"></i>
-                                    <span>Target: ${targetFormatted}</span>
+                                    <i class="fa-regular fa-calendar text-brand-500"></i><span>Target: ${targetFormatted}</span>
                                 </div>
                                 <div class="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-zinc-500 font-semibold ml-auto">
-                                    <i class="fa-solid fa-hourglass-half text-brand-500"></i>
-                                    <span>Durasi: ${task.duration} Jam</span>
+                                    <i class="fa-solid fa-hourglass-half text-brand-500"></i><span>Durasi: ${task.duration} Jam</span>
                                 </div>
                             </div>
                         </div>
@@ -1786,10 +1456,8 @@ function doPost(e) {
                         </div>
                     </div>
                 `;
-
                 listContainer.insertAdjacentHTML('beforeend', cardHtml);
             });
-
             initRealtimeCountdowns();
         }
 
@@ -1798,18 +1466,14 @@ function doPost(e) {
                 const [year, month, day] = dateStr.split('T')[0].split('-');
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                 return `${day} ${months[parseInt(month) - 1]} ${year}`;
-            } catch (e) {
-                return dateStr;
-            }
+            } catch (e) { return dateStr; }
         }
 
         function updateStatistics() {
             const categoryTasks = tasks.filter(t => t.category === activeCategory);
-
             const total = categoryTasks.length;
             const completed = categoryTasks.filter(t => t.completed).length;
             const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-
             const totalHours = categoryTasks.reduce((acc, current) => acc + (current.completed ? 0 : current.duration), 0);
 
             document.getElementById('stat-total-tasks').innerText = total;
@@ -1818,11 +1482,8 @@ function doPost(e) {
             document.getElementById('stat-total-hours').innerText = `${totalHours} Jam`;
 
             const progressBar = document.getElementById('progress-bar');
-            if (progressBar) {
-                progressBar.style.width = `${percentage}%`;
-            }
+            if (progressBar) progressBar.style.width = `${percentage}%`;
 
-            // Menampilkan/menyembunyikan tombol bersihkan tugas selesai secara spesifik per kategori aktif
             const totalCompletedActiveCategory = tasks.filter(t => t.completed && t.category === activeCategory).length;
             const btnClear = document.getElementById('btn-clear-completed');
             if (btnClear) {
@@ -1841,7 +1502,7 @@ function doPost(e) {
             const btnText = document.getElementById('submit-btn-text');
             const btnIcon = document.getElementById('submit-btn-icon');
             if (loading) {
-                btnText.innerText = editMode ? "Memperbarui data..." : "Menyimpan data...";
+                btnText.innerText = editMode ? "Memperbarui..." : "Menyimpan...";
                 btnIcon.className = "fa-solid fa-spinner animate-spin text-lg";
             } else {
                 resetForm();
@@ -1850,23 +1511,15 @@ function doPost(e) {
 
         function showToast(title, desc, type = 'success') {
             const container = document.getElementById('toast-container');
-            
             let iconClass = 'fa-solid fa-circle-check text-emerald-500';
             let bgClass = 'border-emerald-100 dark:border-emerald-950/20';
-            if (type === 'warning') {
-                iconClass = 'fa-solid fa-circle-exclamation text-rose-500';
-                bgClass = 'border-rose-100 dark:border-rose-950/20';
-            } else if (type === 'info') {
-                iconClass = 'fa-solid fa-circle-info text-blue-500';
-                bgClass = 'border-blue-100 dark:border-blue-950/20';
-            }
+            if (type === 'warning') { iconClass = 'fa-solid fa-circle-exclamation text-rose-500'; bgClass = 'border-rose-100 dark:border-rose-950/20'; } 
+            else if (type === 'info') { iconClass = 'fa-solid fa-circle-info text-blue-500'; bgClass = 'border-blue-100 dark:border-blue-950/20'; }
 
             const toastId = 'toast-' + Date.now();
             const toastHtml = `
                 <div id="${toastId}" class="pointer-events-auto flex items-start gap-3 p-4 bg-white/95 dark:bg-zinc-800/95 border rounded-2xl shadow-xl transition-all duration-300 transform translate-y-12 opacity-0 ${bgClass}">
-                    <div class="text-xl mt-0.5">
-                        <i class="${iconClass}"></i>
-                    </div>
+                    <div class="text-xl mt-0.5"><i class="${iconClass}"></i></div>
                     <div class="flex-1">
                         <h5 class="text-xs font-bold text-slate-800 dark:text-zinc-200">${title}</h5>
                         <p class="text-[11px] text-slate-400 dark:text-zinc-500 mt-1 leading-normal">${desc}</p>
@@ -1876,17 +1529,10 @@ function doPost(e) {
                     </button>
                 </div>
             `;
-
             container.insertAdjacentHTML('beforeend', toastHtml);
             const toastEl = document.getElementById(toastId);
-
-            setTimeout(() => {
-                if (toastEl) toastEl.classList.remove('translate-y-12', 'opacity-0');
-            }, 50);
-
-            setTimeout(() => {
-                dismissToast(toastId);
-            }, 4500);
+            setTimeout(() => { if (toastEl) toastEl.classList.remove('translate-y-12', 'opacity-0'); }, 50);
+            setTimeout(() => dismissToast(toastId), 4500);
         }
 
         function dismissToast(id) {
@@ -1901,106 +1547,66 @@ function doPost(e) {
             if (enteredPin.length < 4) {
                 enteredPin += digit;
                 updatePinDots();
-                
-                if (enteredPin.length === 4) {
-                    setTimeout(verifyPin, 150);
-                }
+                if (enteredPin.length === 4) setTimeout(verifyPin, 150);
             }
         }
 
         function backspacePin() {
-            if (enteredPin.length > 0) {
-                enteredPin = enteredPin.slice(0, -1);
-                updatePinDots();
-            }
+            if (enteredPin.length > 0) { enteredPin = enteredPin.slice(0, -1); updatePinDots(); }
         }
-
-        function clearPin() {
-            enteredPin = '';
-            updatePinDots();
-        }
+        function clearPin() { enteredPin = ''; updatePinDots(); }
 
         function updatePinDots() {
             for (let i = 1; i <= 4; i++) {
                 const dot = document.getElementById(`pin-dot-${i}`);
                 if (dot) {
-                    if (i <= enteredPin.length) {
-                        dot.className = "w-4.5 h-4.5 rounded-full bg-brand-500 border-2 border-brand-500 scale-110 transition-all shadow-md shadow-brand-500/20";
-                    } else {
-                        dot.className = "w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all";
-                    }
+                    if (i <= enteredPin.length) dot.className = "w-4.5 h-4.5 rounded-full bg-brand-500 border-2 border-brand-500 scale-110 transition-all shadow-md shadow-brand-500/20";
+                    else dot.className = "w-4.5 h-4.5 rounded-full border-2 border-slate-300 dark:border-zinc-600 transition-all";
                 }
             }
         }
 
         function verifyPin() {
-            if (enteredPin === currentPin) {
-                unlockApp();
-            } else {
+            if (enteredPin === currentPin) unlockApp();
+            else {
                 showToast("PIN Salah!", "PIN keamanan yang dimasukkan tidak terdaftar.", "warning");
-                enteredPin = '';
-                updatePinDots();
+                enteredPin = ''; updatePinDots();
             }
         }
 
         function unlockApp() {
-            appLocked = false;
-            enteredPin = '';
-            updatePinDots();
-            lastActivityTime = Date.now();
-            
+            appLocked = false; enteredPin = ''; updatePinDots(); lastActivityTime = Date.now();
             const lockScreen = document.getElementById('pin-lock-screen');
-            if (lockScreen) {
-                lockScreen.classList.add('opacity-0', 'pointer-events-none');
-            }
+            if (lockScreen) lockScreen.classList.add('opacity-0', 'pointer-events-none');
             showToast("Akses Terbuka 🎉", "Selamat bekerja kembali di Prioritask!", "success");
         }
 
         function lockApp() {
-            appLocked = true;
-            enteredPin = '';
-            updatePinDots();
-            
+            appLocked = true; enteredPin = ''; updatePinDots();
             const lockScreen = document.getElementById('pin-lock-screen');
-            if (lockScreen) {
-                lockScreen.classList.remove('opacity-0', 'pointer-events-none');
-            }
-            showToast("Aplikasi Terkunci", "PIN diminta kembali demi menjaga privasi data pengerjaan.", "info");
+            if (lockScreen) lockScreen.classList.remove('opacity-0', 'pointer-events-none');
+            showToast("Aplikasi Terkunci", "PIN diminta kembali demi menjaga privasi.", "info");
         }
 
         function logout() {
-            appLocked = true;
-            enteredPin = '';
-            updatePinDots();
-            
+            appLocked = true; enteredPin = ''; updatePinDots();
             const lockScreen = document.getElementById('pin-lock-screen');
-            if (lockScreen) {
-                lockScreen.classList.remove('opacity-0', 'pointer-events-none');
-            }
+            if (lockScreen) lockScreen.classList.remove('opacity-0', 'pointer-events-none');
             showToast("Sesi Berakhir", "Aplikasi berhasil dikunci. Masukkan PIN untuk kembali bekerja.", "info");
         }
 
         function initKeyboardPin() {
             window.addEventListener('keydown', (e) => {
                 if (appLocked) {
-                    if (e.key >= '0' && e.key <= '9') {
-                        pressPin(e.key);
-                    } else if (e.key === 'Backspace') {
-                        backspacePin();
-                    } else if (e.key === 'Escape' || e.key === 'Delete') {
-                        clearPin();
-                    }
+                    if (e.key >= '0' && e.key <= '9') pressPin(e.key);
+                    else if (e.key === 'Backspace') backspacePin();
+                    else if (e.key === 'Escape' || e.key === 'Delete') clearPin();
                 }
             });
         }
 
         function initInactivityWatcher() {
-            const resetTimer = () => {
-                if (!appLocked) {
-                    lastActivityTime = Date.now();
-                }
-            };
-
+            const resetTimer = () => { if (!appLocked) lastActivityTime = Date.now(); };
             window.addEventListener('mousemove', resetTimer);
             window.addEventListener('keypress', resetTimer);
             window.addEventListener('click', resetTimer);
@@ -2011,22 +1617,15 @@ function doPost(e) {
                 if (!appLocked) {
                     const elapsed = Date.now() - lastActivityTime;
                     const maxAllowed = sessionDuration * 60 * 1000; 
-                    if (elapsed >= maxAllowed) {
-                        lockApp();
-                    }
+                    if (elapsed >= maxAllowed) lockApp();
                 }
             }, 1000); 
         }
 
         async function saveConfigToSpreadsheet(configId, configValue) {
             const payload = {
-                id: configId,
-                title: configValue,
-                priority: 'config',
-                duration: 0,
-                category: 'config',
-                targetDate: new Date().toISOString().split('T')[0],
-                completed: false
+                id: configId, title: configValue, priority: 'config',
+                duration: 0, category: 'config', targetDate: new Date().toISOString().split('T')[0], completed: false
             };
 
             const localData = getLocalDataAll();
@@ -2035,25 +1634,19 @@ function doPost(e) {
             const localTasks = localStorage.getItem(STORAGE_KEY_TASKS);
             let parsed = localTasks ? JSON.parse(localTasks) : [];
             const index = parsed.findIndex(t => t.id === configId);
-            if (index !== -1) {
-                parsed[index] = payload;
-            } else {
-                parsed.push(payload);
-            }
+            if (index !== -1) parsed[index] = payload;
+            else parsed.push(payload);
             localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(parsed));
 
             if (webAppUrl) {
                 const actionType = configExists ? 'update' : 'create';
                 try {
                     await fetch(webAppUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
+                        method: 'POST', mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: actionType, ...payload })
                     });
-                } catch (error) {
-                    console.error("Gagal sinkronisasi data config", error);
-                }
+                } catch (error) { console.error("Gagal sinkronisasi data config", error); }
             }
         }
 
@@ -2067,38 +1660,27 @@ function doPost(e) {
             const btnText = document.getElementById('text-save-security');
 
             if (pinVal || confirmVal) {
-                if (pinVal.length !== 4 || isNaN(pinVal)) {
-                    showToast("Format PIN Salah", "PIN baru harus terdiri dari 4 digit angka.", "warning");
-                    return;
-                }
-
-                if (pinVal !== confirmVal) {
-                    showToast("Konfirmasi Tidak Cocok", "Konfirmasi PIN tidak sesuai dengan PIN baru.", "warning");
-                    return;
-                }
+                if (pinVal.length !== 4 || isNaN(pinVal)) { showToast("Format Salah", "PIN harus 4 digit angka.", "warning"); return; }
+                if (pinVal !== confirmVal) { showToast("Konfirmasi Salah", "Konfirmasi PIN tidak sesuai.", "warning"); return; }
             }
 
-            btn.disabled = true;
-            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
             const origIconClass = btnIcon ? btnIcon.className : '';
             if (btnIcon) btnIcon.className = "fa-solid fa-spinner animate-spin";
             const origText = btnText ? btnText.innerText : '';
-            if (btnText) btnText.innerText = "Menyimpan Keamanan...";
+            if (btnText) btnText.innerText = "Menyimpan...";
 
             await new Promise(resolve => setTimeout(resolve, 800));
 
             if (pinVal || confirmVal) {
-                currentPin = pinVal;
-                localStorage.setItem(STORAGE_KEY_PIN, pinVal);
+                currentPin = pinVal; localStorage.setItem(STORAGE_KEY_PIN, pinVal);
                 await saveConfigToSpreadsheet('cfg_pin', pinVal);
             }
 
-            sessionDuration = durationVal;
-            localStorage.setItem(STORAGE_KEY_SESSION_DURATION, durationVal);
+            sessionDuration = durationVal; localStorage.setItem(STORAGE_KEY_SESSION_DURATION, durationVal);
             await saveConfigToSpreadsheet('cfg_session_duration', durationVal.toString());
 
-            btn.disabled = false;
-            btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            btn.disabled = false; btn.classList.remove('opacity-80', 'cursor-not-allowed');
             if (btnIcon) btnIcon.className = origIconClass;
             if (btnText) btnText.innerText = origText;
 
@@ -2106,13 +1688,9 @@ function doPost(e) {
             document.getElementById('input-confirm-pin').value = '';
 
             closeAppSettingsModal();
-
             setTimeout(() => {
-                if (pinVal) {
-                    showToast("PIN Berhasil Diperbarui!", "Sistem keamanan PIN telah ditingkatkan.", "success");
-                }
-                const durationText = durationVal === 999999 ? 'tanpa kunci otomatis' : `${durationVal} menit`;
-                showToast("Pengaturan Disimpan!", `Durasi sesi berhasil diatur menjadi ${durationText}.`, "success");
+                if (pinVal) showToast("Berhasil!", "Sistem keamanan PIN telah ditingkatkan.", "success");
+                showToast("Tersimpan!", `Durasi sesi berhasil diatur.`, "success");
             }, 250);
         }
 
@@ -2120,45 +1698,34 @@ function doPost(e) {
             const titleVal = document.getElementById('input-banner-title').value.trim();
             const subtitleVal = document.getElementById('input-banner-subtitle').value.trim();
 
-            if (!titleVal || !subtitleVal) {
-                showToast("Kolom Kosong", "Judul dan subjudul banner tidak boleh dibiarkan kosong.", "warning");
-                return;
-            }
+            if (!titleVal || !subtitleVal) { showToast("Kolom Kosong", "Judul/subjudul banner tidak boleh kosong.", "warning"); return; }
 
             const btn = document.getElementById('btn-save-banner');
             const btnIcon = document.getElementById('icon-save-banner');
             const btnText = document.getElementById('text-save-banner');
 
-            btn.disabled = true;
-            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
             const origIconClass = btnIcon ? btnIcon.className : '';
             if (btnIcon) btnIcon.className = "fa-solid fa-spinner animate-spin";
             const origText = btnText ? btnText.innerText : '';
-            if (btnText) btnText.innerText = "Menyimpan Banner...";
+            if (btnText) btnText.innerText = "Menyimpan...";
 
             await new Promise(resolve => setTimeout(resolve, 800));
 
-            bannerTitle = titleVal;
-            bannerSubtitle = subtitleVal;
-
+            bannerTitle = titleVal; bannerSubtitle = subtitleVal;
             localStorage.setItem(STORAGE_KEY_BANNER_TITLE, titleVal);
             localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, subtitleVal);
 
             updateBannerUI();
-
             await saveConfigToSpreadsheet('cfg_banner_title', titleVal);
             await saveConfigToSpreadsheet('cfg_banner_subtitle', subtitleVal);
 
-            btn.disabled = false;
-            btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            btn.disabled = false; btn.classList.remove('opacity-80', 'cursor-not-allowed');
             if (btnIcon) btnIcon.className = origIconClass;
             if (btnText) btnText.innerText = origText;
 
             closeAppSettingsModal();
-
-            setTimeout(() => {
-                showToast("Banner Diperbarui!", "Perubahan teks banner sambutan berhasil disimpan.", "success");
-            }, 250);
+            setTimeout(() => showToast("Banner Diperbarui!", "Perubahan teks banner berhasil disimpan.", "success"), 250);
         }
 
         async function saveAppearanceSettings() {
@@ -2166,39 +1733,32 @@ function doPost(e) {
             const btnIcon = document.getElementById('icon-save-appearance');
             const btnText = document.getElementById('text-save-appearance');
 
-            btn.disabled = true;
-            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
             const origIconClass = btnIcon ? btnIcon.className : '';
             if (btnIcon) btnIcon.className = "fa-solid fa-spinner animate-spin";
             const origText = btnText ? btnText.innerText : '';
-            if (btnText) btnText.innerText = "Menyimpan Tampilan...";
+            if (btnText) btnText.innerText = "Menyimpan...";
 
             await new Promise(resolve => setTimeout(resolve, 800));
 
             localStorage.setItem('prioritask_theme_color', selectedColor);
             localStorage.setItem('prioritask_app_logo', selectedLogo);
-
             await saveConfigToSpreadsheet('cfg_base_color', selectedColor);
             await saveConfigToSpreadsheet('cfg_app_logo', selectedLogo);
 
-            btn.disabled = false;
-            btn.classList.remove('opacity-80', 'cursor-not-allowed');
+            btn.disabled = false; btn.classList.remove('opacity-80', 'cursor-not-allowed');
             if (btnIcon) btnIcon.className = origIconClass;
             if (btnText) btnText.innerText = origText;
 
             closeAppSettingsModal();
-
-            setTimeout(() => {
-                showToast("Tampilan Diperbarui!", "Warna tema dan logo aplikasi berhasil disesuaikan.", "success");
-            }, 250);
+            setTimeout(() => showToast("Tampilan Diperbarui!", "Warna tema dan logo aplikasi disesuaikan.", "success"), 250);
         }
 
-        // ================= CLEAR COMPLETED TASKS (BULK DELETE) =================
         function openClearCompletedModal() {
             const completedCount = tasks.filter(t => t.completed && t.category === activeCategory).length;
             if(completedCount === 0) return;
             
-            document.getElementById('clear-modal-text').innerText = `Anda akan menghapus ${completedCount} tugas yang sudah selesai secara permanen dari kategori ${activeCategory}. Tindakan ini tidak dapat dibatalkan.`;
+            document.getElementById('clear-modal-text').innerText = `Menghapus permanen ${completedCount} tugas selesai dari kategori ${activeCategory}.`;
             document.getElementById('confirm-clear-modal').classList.remove('hidden');
         }
 
@@ -2206,40 +1766,29 @@ function doPost(e) {
             document.getElementById('confirm-clear-modal').classList.add('hidden');
         }
 
-        async function executeClearCompleted() {
+        function executeClearCompleted() {
             const completedTasks = tasks.filter(t => t.completed && t.category === activeCategory);
             if(completedTasks.length === 0) return;
 
-            const btn = document.getElementById('btn-confirm-clear');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Memproses...`;
+            // OPTIMISTIC UI: Hapus langsung secara instan
+            tasks = tasks.filter(t => !(t.completed && t.category === activeCategory));
+            saveLocalTasks();
+            closeClearCompletedModal();
+            filterAndRenderTasks();
+            updateStatistics();
+            showToast('Dibersihkan! 🧹', `${completedTasks.length} tugas selesai dihapus.`, 'success');
 
-            // Proses penghapusan ke database Spreadsheet secara asinkron massal
+            // BACKGROUND SYNC: Kirim ke server tanpa jeda (non-blocking)
             if (webAppUrl) {
                 const deletePromises = completedTasks.map(task => 
                     fetch(webAppUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
+                        method: 'POST', mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'delete', id: task.id })
                     }).catch(e => console.error(e))
                 );
-                await Promise.allSettled(deletePromises);
+                Promise.allSettled(deletePromises);
             }
-
-            // Memfilter array global: Simpan tugas yang BUKAN (selesai DAN pada kategori aktif)
-            tasks = tasks.filter(t => !(t.completed && t.category === activeCategory));
-            saveLocalTasks();
-
-            // Reset UI State Modal
-            btn.disabled = false;
-            btn.innerHTML = `<span>Ya, Bersihkan</span>`;
-            closeClearCompletedModal();
-
-            showToast('Berhasil Dibersihkan! 🧹', `${completedTasks.length} tugas yang sudah selesai di kategori ${activeCategory} telah dihapus permanen.`, 'success');
-            
-            filterAndRenderTasks();
-            updateStatistics();
         }
     </script>
 </body>
