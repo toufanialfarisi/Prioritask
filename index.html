@@ -371,7 +371,12 @@
                             <i class="fa-solid fa-list"></i>
                             Daftar Tugas Terjadwal
                         </h3>
-                        <span class="text-xs text-slate-400 dark:text-zinc-500" id="task-showing-count">Menampilkan 0 tugas</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-400 dark:text-zinc-500" id="task-showing-count">Menampilkan 0 tugas</span>
+                            <button onclick="openClearCompletedModal()" id="btn-clear-completed" class="hidden text-xs items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/20 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-all font-bold">
+                                <i class="fa-solid fa-broom"></i> Bersihkan
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Dynamic Task List (Extends vertically without internal scrollbar) -->
@@ -389,7 +394,7 @@
         </section>
     </main>
 
-    <!-- Modal 1: Google Spreadsheet Connection & Guide (Optimized Height Structure) -->
+    <!-- Modal 1: Google Spreadsheet Connection & Guide -->
     <div id="database-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden animate-fade-in">
         <div class="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col transition-all duration-300 overflow-hidden">
             <!-- Modal Header (Static) -->
@@ -400,7 +405,7 @@
                     </div>
                     <div>
                         <h3 class="font-bold text-lg">Konfigurasi Database Spreadsheet</h3>
-                        <p class="text-xs text-slate-400 dark:text-zinc-500">Hubunakan database Prioritask ke Spreadsheet Anda</p>
+                        <p class="text-xs text-slate-400 dark:text-zinc-500">Hubungkan database Prioritask ke Spreadsheet Anda</p>
                     </div>
                 </div>
                 <button onclick="closeDatabaseModal()" class="w-8 h-8 rounded-full border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-slate-500 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all">
@@ -538,7 +543,7 @@ function doPost(e) {
         </div>
     </div>
 
-    <!-- Modal 2: App Settings (PIN Change, Session, & Banner Customizer - Premium Sticky Tab Structure) -->
+    <!-- Modal 2: App Settings -->
     <div id="app-settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden animate-fade-in">
         <div class="bg-white dark:bg-zinc-800 rounded-3xl border border-slate-200 dark:border-zinc-700 w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl transition-all duration-300 overflow-hidden">
             
@@ -796,6 +801,27 @@ function doPost(e) {
         </div>
     </div>
 
+    <!-- Modal 3: Confirm Clear Completed Tasks -->
+    <div id="confirm-clear-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden animate-fade-in">
+        <div class="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center space-y-6">
+            <div class="w-16 h-16 rounded-2xl bg-rose-100 dark:bg-rose-950/30 text-rose-500 mx-auto flex items-center justify-center text-3xl shadow-inner border border-rose-200 dark:border-rose-900/50">
+                <i class="fa-solid fa-trash-can-arrow-up"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-lg mb-2">Bersihkan Tugas Selesai?</h3>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed" id="clear-modal-text">Anda akan menghapus tugas yang sudah selesai secara permanen. Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeClearCompletedModal()" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-zinc-900 transition-all text-slate-600 dark:text-zinc-300">
+                    Batal
+                </button>
+                <button onclick="executeClearCompleted()" id="btn-confirm-clear" class="flex-1 px-4 py-3 rounded-xl bg-rose-500 text-white text-sm font-bold shadow-lg shadow-rose-500/20 hover:bg-rose-600 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span>Ya, Bersihkan</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Core JavaScript Logic -->
     <script>
         // Global States
@@ -900,7 +926,7 @@ function doPost(e) {
             initInactivityWatcher();
         });
 
-        // App Appearance Config Live Handlers (With space-separated variable injection)
+        // App Appearance Config Live Handlers
         function setBaseColor(colorName) {
             selectedColor = colorName;
             const root = document.documentElement;
@@ -910,7 +936,7 @@ function doPost(e) {
             const presets = ['indigo', 'emerald', 'blue', 'amber', 'rose', 'violet'];
 
             if (presets.includes(colorName)) {
-                // A. Normal Preset loading flow
+                // Preset loading flow
                 const palette = COLOR_PALETTES[colorName] || COLOR_PALETTES.indigo;
                 root.style.setProperty('--color-brand-50', hexToRgbString(palette[50]));
                 root.style.setProperty('--color-brand-100', hexToRgbString(palette[100]));
@@ -919,11 +945,11 @@ function doPost(e) {
                 root.style.setProperty('--color-brand-700', hexToRgbString(palette[700]));
                 root.style.setProperty('--color-accent-500', hexToRgbString(palette.accent));
 
-                // Reset custom label preview to spectrum
+                // Reset custom label preview
                 if (customPreview) customPreview.style.background = 'linear-gradient(to tr, #ec4899, #ef4444, #eab308)';
                 if (customPickerLabel) customPickerLabel.className = "relative p-2.5 rounded-xl border-2 border-transparent bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer";
             } else if (colorName.startsWith('#')) {
-                // B. Custom HEX Color processing flow
+                // Custom HEX Color flow
                 const c50 = blendColor(colorName, '#ffffff', 0.93);
                 const c100 = blendColor(colorName, '#ffffff', 0.84);
                 const c500 = colorName;
@@ -937,14 +963,12 @@ function doPost(e) {
                 root.style.setProperty('--color-brand-700', hexToRgbString(c700));
                 root.style.setProperty('--color-accent-500', hexToRgbString(c500));
 
-                // Set preview to hex color
                 if (customPreview) customPreview.style.background = colorName;
                 if (customPickerLabel) customPickerLabel.className = "relative p-2.5 rounded-xl border-2 border-brand-500 bg-white dark:bg-zinc-800 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer shadow-md";
                 const pickerInput = document.getElementById('custom-color-picker');
                 if (pickerInput) pickerInput.value = colorName;
             }
             
-            // Render active class in theme setting layout for preset buttons
             presets.forEach(col => {
                 const btn = document.getElementById(`color-opt-${col}`);
                 if (btn) {
@@ -957,22 +981,18 @@ function doPost(e) {
             });
         }
 
-        // Live color input drag handler
         function handleCustomColor(val) {
             setBaseColor(val);
         }
 
-        // Sets the global icon based on either user preset or custom class input
         function setAppLogo(logoClass) {
             selectedLogo = logoClass;
             const logoIcon = document.getElementById('app-logo-icon');
             if (logoIcon) {
-                // Ensure proper class naming sequence
                 const isSolidPreset = logoClass.startsWith('fa-');
                 logoIcon.className = isSolidPreset ? `fa-solid ${logoClass} text-lg sm:text-xl` : `${logoClass} text-lg sm:text-xl`;
             }
 
-            // Render active logo preset highlighting border
             const presetLogos = [
                 'fa-square-check', 'fa-star', 'fa-fire', 'fa-rocket', 'fa-list-check', 'fa-bolt',
                 'fa-crown', 'fa-seedling', 'fa-briefcase', 'fa-house', 'fa-laptop-code', 'fa-graduation-cap',
@@ -993,7 +1013,6 @@ function doPost(e) {
                 }
             });
 
-            // Update badge preview
             const badge = document.getElementById('logo-badge-preview');
             const customInput = document.getElementById('input-custom-logo');
             
@@ -1012,17 +1031,15 @@ function doPost(e) {
             }
         }
 
-        // Live Custom FontAwesome input typing handler
         function handleCustomLogoInput(val) {
             const cleanVal = val.trim();
             if (cleanVal) {
                 setAppLogo(cleanVal);
             } else {
-                setAppLogo('fa-square-check'); // Fallback
+                setAppLogo('fa-square-check');
             }
         }
 
-        // Toggle Category Tabs (Kantor vs Rumah)
         function changeCategoryTab(category) {
             activeCategory = category;
             const tabKantor = document.getElementById('tab-kantor');
@@ -1040,7 +1057,6 @@ function doPost(e) {
             updateStatistics();
         }
 
-        // Toggle Theme (Dark Mode & Light Mode)
         function toggleDarkMode() {
             isDarkMode = !isDarkMode;
             applyTheme();
@@ -1060,30 +1076,24 @@ function doPost(e) {
             }
         }
 
-        // Real-Time Estimation Duration Slider Helper
         function updateDurationDisplay(val) {
             document.getElementById('duration-display').innerText = `${val} Jam`;
         }
 
-        // Modal 1: Database Modal Controls
         function openDatabaseModal() {
             document.getElementById('web-app-url-input').value = webAppUrl;
             document.getElementById('database-modal').classList.remove('hidden');
         }
 
-        // Close Database Modal Helper
         function closeDatabaseModal() {
             document.getElementById('database-modal').classList.add('hidden');
         }
 
-        // Modal 2: App Settings Modal Controls
         function openAppSettingsModal() {
             document.getElementById('input-session-duration').value = sessionDuration;
-            // Sync values from state to input elements inside modal
             document.getElementById('input-banner-title').value = bannerTitle;
             document.getElementById('input-banner-subtitle').value = bannerSubtitle;
             
-            // Sync appearance colors & logo options in dashboard UI
             setBaseColor(selectedColor);
             setAppLogo(selectedLogo);
 
@@ -1095,7 +1105,6 @@ function doPost(e) {
             document.getElementById('app-settings-modal').classList.add('hidden');
         }
 
-        // Inner Tab Switcher for App Settings
         function switchAppSettingsTab(tabName) {
             const btnSecurity = document.getElementById('set-tab-security');
             const btnBanner = document.getElementById('set-tab-banner');
@@ -1104,7 +1113,6 @@ function doPost(e) {
             const contentBanner = document.getElementById('settings-content-banner');
             const contentAppearance = document.getElementById('settings-content-appearance');
 
-            // Hide/Show content panels safely
             if (contentSecurity) {
                 if (tabName === 'security') contentSecurity.classList.remove('hidden');
                 else contentSecurity.classList.add('hidden');
@@ -1118,7 +1126,6 @@ function doPost(e) {
                 else contentAppearance.classList.add('hidden');
             }
 
-            // Function to swap active/inactive CSS classes cleanly
             const updateButtonTab = (btn, isActive) => {
                 if (!btn) return;
                 const activeClasses = ['border-brand-500', 'text-brand-600', 'dark:text-brand-500'];
@@ -1133,38 +1140,31 @@ function doPost(e) {
                 }
             };
 
-            // Apply updates
             updateButtonTab(btnSecurity, tabName === 'security');
             updateButtonTab(btnBanner, tabName === 'banner');
             updateButtonTab(btnAppearance, tabName === 'appearance');
         }
 
-        // Save Database Connection URL Settings with Premium Loading Transitions
         async function saveDatabaseSettings() {
             const urlInput = document.getElementById('web-app-url-input').value.trim();
             const btn = document.getElementById('btn-save-database');
             const btnText = document.getElementById('text-save-database');
 
-            // 1. Show premium spinning loading indicator on active button
             btn.disabled = true;
             btn.classList.add('opacity-80', 'cursor-not-allowed');
             btnText.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-2"></i>Menghubungkan...`;
 
-            // 2. Perform dynamic async operation with premium artificial delay
             await new Promise(resolve => setTimeout(resolve, 850));
 
             webAppUrl = urlInput;
             localStorage.setItem(STORAGE_KEY_API_URL, urlInput);
 
-            // Restore button properties
             btn.disabled = false;
             btn.classList.remove('opacity-80', 'cursor-not-allowed');
             btnText.innerHTML = `Hubungkan Database`;
 
-            // 3. CLOSE MODAL FIRST
             closeDatabaseModal();
 
-            // 4. Raise the Premium Toast notification afterwards
             setTimeout(() => {
                 showToast('Database Tersimpan!', urlInput ? 'Mulai menyinkronkan dengan Google Spreadsheet...' : 'Beralih menggunakan Penyimpanan Lokal.', 'success');
                 updateConnectionStatus();
@@ -1172,7 +1172,6 @@ function doPost(e) {
             }, 250);
         }
 
-        // Connection Indicator Status Updated
         function updateConnectionStatus() {
             const badge = document.getElementById('db-status-badge');
             const dot = document.getElementById('db-status-dot');
@@ -1189,11 +1188,8 @@ function doPost(e) {
             }
         }
 
-        // Copy Code Script helper
         function copyScriptCode() {
             const code = document.getElementById('script-code-block').innerText;
-            
-            // Clipboard Fallback compatible for browsers inside IFrame
             const el = document.createElement('textarea');
             el.value = code;
             document.body.appendChild(el);
@@ -1204,7 +1200,6 @@ function doPost(e) {
             showToast('Kode Disalin!', 'Tempel kode tersebut di bagian Google Apps Script Anda.', 'success');
         }
 
-        // Load Preferences
         function loadPreferences() {
             isDarkMode = localStorage.getItem(STORAGE_KEY_DARK_MODE) === 'true';
             applyTheme();
@@ -1212,13 +1207,11 @@ function doPost(e) {
             webAppUrl = localStorage.getItem(STORAGE_KEY_API_URL) || '';
             updateConnectionStatus();
 
-            // Load Security Configurations
             currentPin = localStorage.getItem(STORAGE_KEY_PIN) || '2911';
             sessionDuration = parseInt(localStorage.getItem(STORAGE_KEY_SESSION_DURATION)) || 10;
             bannerTitle = localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋';
             bannerSubtitle = localStorage.getItem(STORAGE_KEY_BANNER_SUBTITLE) || 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.';
 
-            // Load custom theme settings
             selectedColor = localStorage.getItem('prioritask_theme_color') || 'indigo';
             setBaseColor(selectedColor);
 
@@ -1233,13 +1226,11 @@ function doPost(e) {
             document.getElementById('display-banner-subtitle').innerText = bannerSubtitle;
         }
 
-        // Handle Read Operations (Fetch Tasks & Configs)
         async function fetchTasks() {
             showShimmer(true);
             let fetchedData = [];
             if (webAppUrl) {
                 try {
-                    // Fetch directly from deployed Google Sheets
                     const response = await fetch(webAppUrl);
                     if (!response.ok) throw new Error('Koneksi Gagal');
                     fetchedData = await response.json();
@@ -1251,17 +1242,14 @@ function doPost(e) {
                 fetchedData = getLocalDataAll();
             }
 
-            // Extract Config rows from task rows seamlessly
             const configRows = fetchedData.filter(item => item.id.startsWith('cfg_'));
             tasks = fetchedData.filter(item => !item.id.startsWith('cfg_'));
 
-            // Map and load the device-specific 'In Progress' states dynamically
             const inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
             tasks.forEach(task => {
                 task.inProgress = inProgressIds.includes(task.id) && !task.completed;
             });
 
-            // Parse existing configs
             const pinConfig = configRows.find(c => c.id === 'cfg_pin');
             if (pinConfig) {
                 currentPin = pinConfig.title;
@@ -1310,7 +1298,6 @@ function doPost(e) {
             const localTasks = localStorage.getItem(STORAGE_KEY_TASKS);
             let parsed = localTasks ? JSON.parse(localTasks) : [];
 
-            // Safe inject default config rows if they do not exist
             const localPin = localStorage.getItem(STORAGE_KEY_PIN) || '2911';
             const localSession = localStorage.getItem(STORAGE_KEY_SESSION_DURATION) || '10';
             const localTitle = localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋';
@@ -1339,7 +1326,6 @@ function doPost(e) {
             return parsed;
         }
 
-        // Simpan Data lokal
         function saveLocalTasks() {
             const allSaved = getLocalDataAll();
             const configRowsOnly = allSaved.filter(item => item.id.startsWith('cfg_'));
@@ -1347,7 +1333,6 @@ function doPost(e) {
             localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(finalMerged));
         }
 
-        // Show Shimmer Skeleton Loading
         function showShimmer(show) {
             const listContainer = document.getElementById('task-list-element');
             if (show) {
@@ -1361,7 +1346,6 @@ function doPost(e) {
             }
         }
 
-        // Create or Update Action Handling
         async function handleFormSubmit(event) {
             event.preventDefault();
 
@@ -1449,7 +1433,6 @@ function doPost(e) {
             }, 300);
         }
 
-        // Toggle Task In Progress
         function toggleTaskInProgress(id) {
             const index = tasks.findIndex(t => t.id === id);
             if (index === -1) return;
@@ -1483,7 +1466,6 @@ function doPost(e) {
             updateStatistics();
         }
 
-        // Toggle Task Completion State
         async function toggleTaskComplete(id) {
             const index = tasks.findIndex(t => t.id === id);
             if (index === -1) return;
@@ -1525,7 +1507,6 @@ function doPost(e) {
             updateStatistics();
         }
 
-        // Delete Task
         async function deleteTask(id, title) {
             if (webAppUrl) {
                 try {
@@ -1552,7 +1533,6 @@ function doPost(e) {
             updateStatistics();
         }
 
-        // Prepare Task to Edit Mode
         function editTask(id) {
             const task = tasks.find(t => t.id === id);
             if (!task) return;
@@ -1582,7 +1562,6 @@ function doPost(e) {
             showToast('Mode Edit Hack', 'Formulir telah diisi sesuai data tugas terpilih.', 'info');
         }
 
-        // Reset & Clear input Form
         function resetForm() {
             isEditing = false;
             document.getElementById('form-title').innerText = "Tugas Baru";
@@ -1602,7 +1581,6 @@ function doPost(e) {
             document.getElementById('submit-btn-icon').className = "fa-solid fa-plus-circle";
         }
 
-        // Filter Controls Change active filter
         function changeActiveFilter(filterType) {
             activeFilter = filterType;
             
@@ -1630,7 +1608,6 @@ function doPost(e) {
             filterAndRenderTasks();
         }
 
-        // Real-Time Countdown Core Processor
         function initRealtimeCountdowns() {
             if (countdownIntervalId) {
                 clearInterval(countdownIntervalId);
@@ -1667,7 +1644,6 @@ function doPost(e) {
             }, 1000);
         }
 
-        // Filtering Logic and Dom Redraw Task list
         function filterAndRenderTasks() {
             const searchKeyword = document.getElementById('search-input').value.toLowerCase().trim();
             const listContainer = document.getElementById('task-list-element');
@@ -1817,7 +1793,6 @@ function doPost(e) {
             initRealtimeCountdowns();
         }
 
-        // Format Date string formatting helper
         function formatDateString(dateStr) {
             try {
                 const [year, month, day] = dateStr.split('T')[0].split('-');
@@ -1828,7 +1803,6 @@ function doPost(e) {
             }
         }
 
-        // Update Statistics Banner & Elegant Progress Bar
         function updateStatistics() {
             const categoryTasks = tasks.filter(t => t.category === activeCategory);
 
@@ -1847,9 +1821,22 @@ function doPost(e) {
             if (progressBar) {
                 progressBar.style.width = `${percentage}%`;
             }
+
+            // Menampilkan/menyembunyikan tombol bersihkan tugas selesai secara spesifik per kategori aktif
+            const totalCompletedActiveCategory = tasks.filter(t => t.completed && t.category === activeCategory).length;
+            const btnClear = document.getElementById('btn-clear-completed');
+            if (btnClear) {
+                if (totalCompletedActiveCategory > 0) {
+                    btnClear.classList.remove('hidden');
+                    btnClear.classList.add('flex');
+                    btnClear.innerHTML = `<i class="fa-solid fa-broom"></i> Bersihkan (${totalCompletedActiveCategory})`;
+                } else {
+                    btnClear.classList.add('hidden');
+                    btnClear.classList.remove('flex');
+                }
+            }
         }
 
-        // Show Button loading State visual helper
         function showLoadingStateOnButton(loading, editMode) {
             const btnText = document.getElementById('submit-btn-text');
             const btnIcon = document.getElementById('submit-btn-icon');
@@ -1861,7 +1848,6 @@ function doPost(e) {
             }
         }
 
-        // Live Custom Toast Notification system
         function showToast(title, desc, type = 'success') {
             const container = document.getElementById('toast-container');
             
@@ -1911,7 +1897,6 @@ function doPost(e) {
             }
         }
 
-        // ================= SECURITY PIN SYSTEM LOGIC =================
         function pressPin(digit) {
             if (enteredPin.length < 4) {
                 enteredPin += digit;
@@ -2206,6 +2191,55 @@ function doPost(e) {
             setTimeout(() => {
                 showToast("Tampilan Diperbarui!", "Warna tema dan logo aplikasi berhasil disesuaikan.", "success");
             }, 250);
+        }
+
+        // ================= CLEAR COMPLETED TASKS (BULK DELETE) =================
+        function openClearCompletedModal() {
+            const completedCount = tasks.filter(t => t.completed && t.category === activeCategory).length;
+            if(completedCount === 0) return;
+            
+            document.getElementById('clear-modal-text').innerText = `Anda akan menghapus ${completedCount} tugas yang sudah selesai secara permanen dari kategori ${activeCategory}. Tindakan ini tidak dapat dibatalkan.`;
+            document.getElementById('confirm-clear-modal').classList.remove('hidden');
+        }
+
+        function closeClearCompletedModal() {
+            document.getElementById('confirm-clear-modal').classList.add('hidden');
+        }
+
+        async function executeClearCompleted() {
+            const completedTasks = tasks.filter(t => t.completed && t.category === activeCategory);
+            if(completedTasks.length === 0) return;
+
+            const btn = document.getElementById('btn-confirm-clear');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Memproses...`;
+
+            // Proses penghapusan ke database Spreadsheet secara asinkron massal
+            if (webAppUrl) {
+                const deletePromises = completedTasks.map(task => 
+                    fetch(webAppUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'delete', id: task.id })
+                    }).catch(e => console.error(e))
+                );
+                await Promise.allSettled(deletePromises);
+            }
+
+            // Memfilter array global: Simpan tugas yang BUKAN (selesai DAN pada kategori aktif)
+            tasks = tasks.filter(t => !(t.completed && t.category === activeCategory));
+            saveLocalTasks();
+
+            // Reset UI State Modal
+            btn.disabled = false;
+            btn.innerHTML = `<span>Ya, Bersihkan</span>`;
+            closeClearCompletedModal();
+
+            showToast('Berhasil Dibersihkan! 🧹', `${completedTasks.length} tugas yang sudah selesai di kategori ${activeCategory} telah dihapus permanen.`, 'success');
+            
+            filterAndRenderTasks();
+            updateStatistics();
         }
     </script>
 </body>
