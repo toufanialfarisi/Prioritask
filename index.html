@@ -1042,9 +1042,30 @@ function doPost(e) {
             const configRows = fetchedData.filter(item => item.id.startsWith('cfg_'));
             tasks = fetchedData.filter(item => !item.id.startsWith('cfg_'));
 
+            // Menggabungkan (Merge) data dari Google Sheets dengan status timer lokal peranti
+            const localDataMap = {};
+            getLocalDataAll().forEach(t => { localDataMap[t.id] = t; });
+
             const inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
             tasks.forEach(task => {
+                const localTask = localDataMap[task.id];
                 task.inProgress = inProgressIds.includes(task.id) && !task.completed;
+                
+                // Setel memori sisa waktu (Play/Pause)
+                if (localTask && localTask.remainingMs !== undefined) {
+                    task.remainingMs = localTask.remainingMs;
+                } else {
+                    task.remainingMs = task.duration * 60 * 60 * 1000;
+                }
+
+                // Setel memori kapan terakhir kali diputar (Play)
+                if (localTask && localTask.lastStartedAt !== undefined) {
+                    task.lastStartedAt = localTask.lastStartedAt;
+                } else if (task.inProgress) {
+                    task.lastStartedAt = Date.now();
+                } else {
+                    task.lastStartedAt = null;
+                }
             });
 
             const pinConfig = configRows.find(c => c.id === 'cfg_pin');
@@ -1118,7 +1139,9 @@ function doPost(e) {
 
             const taskPayload = {
                 id: id || 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-                title, priority, duration, category, targetDate, completed: false, inProgress: false
+                title, priority, duration, category, targetDate, completed: false, inProgress: false,
+                remainingMs: duration * 60 * 60 * 1000,
+                lastStartedAt: null
             };
             const isEditOperation = !!id;
 
@@ -1135,8 +1158,14 @@ function doPost(e) {
                     if (isEditOperation) {
                         const index = tasks.findIndex(t => t.id === id);
                         if (index !== -1) {
+                            if (tasks[index].duration !== duration) {
+                                taskPayload.remainingMs = duration * 60 * 60 * 1000;
+                            } else {
+                                taskPayload.remainingMs = tasks[index].remainingMs;
+                            }
                             taskPayload.completed = tasks[index].completed;
                             taskPayload.inProgress = tasks[index].inProgress;
+                            taskPayload.lastStartedAt = tasks[index].lastStartedAt;
                             tasks[index] = taskPayload;
                         }
                     } else { tasks.unshift(taskPayload); }
@@ -1148,8 +1177,14 @@ function doPost(e) {
                 if (isEditOperation) {
                     const index = tasks.findIndex(t => t.id === id);
                     if (index !== -1) {
+                        if (tasks[index].duration !== duration) {
+                            taskPayload.remainingMs = duration * 60 * 60 * 1000;
+                        } else {
+                            taskPayload.remainingMs = tasks[index].remainingMs;
+                        }
                         taskPayload.completed = tasks[index].completed;
                         taskPayload.inProgress = tasks[index].inProgress;
+                        taskPayload.lastStartedAt = tasks[index].lastStartedAt;
                         tasks[index] = taskPayload;
                     }
                 } else { tasks.unshift(taskPayload); }
@@ -1178,7 +1213,18 @@ function doPost(e) {
 
             const newState = !tasks[index].inProgress;
             tasks[index].inProgress = newState;
-            if (newState) tasks[index].completed = false;
+            
+            // Logic Play / Pause pintar
+            if (newState) {
+                tasks[index].completed = false;
+                tasks[index].lastStartedAt = Date.now(); // Mulai dari sekarang
+            } else {
+                if (tasks[index].lastStartedAt) {
+                    const elapsed = Date.now() - tasks[index].lastStartedAt;
+                    tasks[index].remainingMs = Math.max(0, tasks[index].remainingMs - elapsed); // Kurangi sisa waktu
+                }
+                tasks[index].lastStartedAt = null; // Bekukan memori timestamp
+            }
 
             let inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
             if (newState) {
@@ -1199,7 +1245,7 @@ function doPost(e) {
             updateStatistics();
         }
 
-        function toggleTaskComplete(id) {
+        async function toggleTaskComplete(id) {
             const index = tasks.findIndex(t => t.id === id);
             if (index === -1) return;
 
@@ -1207,7 +1253,14 @@ function doPost(e) {
             tasks[index].completed = isDoneNow;
 
             if (isDoneNow) {
+                // Hentikan dan simpan sisa waktu jika selesai ditengah jalan
+                if (tasks[index].inProgress && tasks[index].lastStartedAt) {
+                    const elapsed = Date.now() - tasks[index].lastStartedAt;
+                    tasks[index].remainingMs = Math.max(0, tasks[index].remainingMs - elapsed);
+                }
                 tasks[index].inProgress = false;
+                tasks[index].lastStartedAt = null;
+
                 let inProgressIds = JSON.parse(localStorage.getItem(STORAGE_KEY_IN_PROGRESS_IDS) || '[]');
                 inProgressIds = inProgressIds.filter(item => item !== id);
                 localStorage.setItem(STORAGE_KEY_IN_PROGRESS_IDS, JSON.stringify(inProgressIds));
@@ -1325,18 +1378,25 @@ function doPost(e) {
                 if (timerElements.length === 0) return;
 
                 timerElements.forEach(el => {
-                    const deadlineMs = parseInt(el.getAttribute('data-deadline'));
                     const taskId = el.getAttribute('data-task-id');
-                    const diff = deadlineMs - Date.now();
+                    const inProgress = el.getAttribute('data-in-progress') === 'true';
+                    let remainingMs = parseInt(el.getAttribute('data-remaining-ms'));
+                    const lastStartedAt = parseInt(el.getAttribute('data-last-started'));
 
-                    if (diff <= 0) {
+                    // Hanya berkurang jika di-play (inProgress)
+                    if (inProgress && lastStartedAt > 0) {
+                        const elapsed = Date.now() - lastStartedAt;
+                        remainingMs = Math.max(0, remainingMs - elapsed);
+                    }
+
+                    if (remainingMs <= 0) {
                         el.innerHTML = `<span class="text-rose-500 font-extrabold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation animate-bounce"></i> Waktu Habis!</span>`;
                         const container = document.getElementById(`countdown-badge-${taskId}`);
                         if (container) container.className = "flex items-center gap-1.5 text-[11px] bg-rose-50 dark:bg-rose-950/20 px-2.5 py-1 rounded-xl text-rose-500 border border-rose-200/50 dark:border-rose-900/30 ml-auto transition-all";
                     } else {
-                        const hours = Math.floor(diff / (1000 * 60 * 60));
-                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                        const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+                        const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
 
                         el.innerHTML = `<span class="font-extrabold text-brand-600 dark:text-brand-500">${String(hours).padStart(2, '0')}</span>j ` +
                                     `<span class="font-extrabold text-brand-600 dark:text-brand-500">${String(minutes).padStart(2, '0')}</span>m ` +
@@ -1396,12 +1456,9 @@ function doPost(e) {
                     cardStyle = 'bg-white dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 hover:shadow-md hover:-translate-y-0.5';
                 }
 
-                let createdAt = Date.now();
-                if (task.id && task.id.startsWith('id-')) {
-                    const idParts = task.id.split('-');
-                    if (idParts[1] && !isNaN(idParts[1])) createdAt = parseInt(idParts[1]);
-                }
-                const deadlineTimestamp = createdAt + (task.duration * 60 * 60 * 1000);
+                const remainingMs = task.remainingMs !== undefined ? task.remainingMs : (task.duration * 60 * 60 * 1000);
+                const lastStartedAt = task.lastStartedAt || 0;
+
                 const delayStyle = `animation-delay: ${index * 60}ms;`;
 
                 const cardHtml = `
@@ -1421,8 +1478,8 @@ function doPost(e) {
                                 ` : ''}
                                 ${!task.completed ? `
                                     <div id="countdown-badge-${task.id}" class="flex items-center gap-1.5 text-[11px] bg-slate-100 dark:bg-zinc-900 px-2.5 py-0.5 rounded-lg text-slate-600 dark:text-zinc-400 border border-slate-200/30 dark:border-zinc-700/50 ml-auto transition-all font-semibold">
-                                        <i class="fa-solid fa-stopwatch ${task.inProgress ? 'animate-spin text-amber-500' : 'animate-pulse text-brand-500'}"></i>
-                                        <span class="task-countdown-element font-semibold tracking-tight" data-task-id="${task.id}" data-deadline="${deadlineTimestamp}">Menghitung...</span>
+                                        <i class="fa-solid ${task.inProgress ? 'fa-stopwatch animate-spin text-amber-500' : 'fa-pause text-slate-400 dark:text-zinc-500'}"></i>
+                                        <span class="task-countdown-element font-semibold tracking-tight" data-task-id="${task.id}" data-in-progress="${task.inProgress}" data-remaining-ms="${remainingMs}" data-last-started="${lastStartedAt}">Menghitung...</span>
                                     </div>
                                 ` : `
                                     <div class="flex items-center gap-1.5 text-[11px] bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-0.5 rounded-lg text-emerald-600 dark:text-emerald-400 border border-emerald-100/20 dark:border-emerald-900/20 ml-auto font-extrabold">
