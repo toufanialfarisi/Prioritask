@@ -427,68 +427,72 @@
                             <div class="relative mt-2">
                                 <pre class="bg-slate-900 text-slate-300 text-[10px] p-4 rounded-xl overflow-x-auto font-mono max-h-48 hide-scrollbar" id="script-code-block">
 function doGet(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var rows = sheet.getDataRange().getValues();
+  var db = SpreadsheetApp.getActiveSpreadsheet();
+  var taskSheet = db.getSheetByName("TASKS") || db.insertSheet("TASKS");
+  var paramSheet = db.getSheetByName("PARAMETER") || db.insertSheet("PARAMETER");
+  
   var tasks = [];
-  
-  if(rows.length <= 1) {
-    return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+  var rows = taskSheet.getDataRange().getValues();
+  if(rows.length > 1) {
+    for (var i = 1; i < rows.length; i++) {
+      tasks.push({
+        id: rows[i][0], title: rows[i][1], priority: rows[i][2],
+        duration: rows[i][3], category: rows[i][4], targetDate: rows[i][5],
+        completed: rows[i][6] === true || rows[i][6] === "true"
+      });
+    }
   }
   
-  for (var i = 1; i < rows.length; i++) {
-    tasks.push({
-      id: rows[i][0],
-      title: rows[i][1],
-      priority: rows[i][2],
-      duration: rows[i][3],
-      category: rows[i][4],
-      targetDate: rows[i][5],
-      completed: rows[i][6] === true || rows[i][6] === "true"
-    });
+  var parameters = {};
+  var paramData = paramSheet.getRange(1, 1).getValue();
+  if (paramData) {
+    try { parameters = JSON.parse(paramData); } catch(e) {}
   }
-  return ContentService.createTextOutput(JSON.stringify(tasks)).setMimeType(ContentService.MimeType.JSON);
+  
+  return ContentService.createTextOutput(JSON.stringify({tasks: tasks, parameters: parameters})).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var db = SpreadsheetApp.getActiveSpreadsheet();
+  var taskSheet = db.getSheetByName("TASKS") || db.insertSheet("TASKS");
+  var paramSheet = db.getSheetByName("PARAMETER") || db.insertSheet("PARAMETER");
+  
   var data = JSON.parse(e.postData.contents);
   var action = data.action;
   
-  if (sheet.getLastRow() == 0) {
-    sheet.appendRow(["ID", "Title", "Priority", "Duration", "Category", "TargetDate", "Completed"]);
+  if (action === "update_config") {
+    paramSheet.getRange(1, 1).setValue(JSON.stringify(data.parameters));
+    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
   }
   
-  var rows = sheet.getDataRange().getValues();
+  if (taskSheet.getLastRow() == 0) {
+    taskSheet.appendRow(["ID", "Title", "Priority", "Duration", "Category", "TargetDate", "Completed"]);
+  }
+  var rows = taskSheet.getDataRange().getValues();
   
   if (action === "create") {
-    sheet.appendRow([data.id, data.title, data.priority, data.duration, data.category, data.targetDate, data.completed]);
-    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  if (action === "update") {
+    taskSheet.appendRow([data.id, data.title, data.priority, data.duration, data.category, data.targetDate, data.completed]);
+  } else if (action === "update") {
     for (var i = 1; i < rows.length; i++) {
       if (rows[i][0] == data.id) {
-        sheet.getRange(i + 1, 2).setValue(data.title);
-        sheet.getRange(i + 1, 3).setValue(data.priority);
-        sheet.getRange(i + 1, 4).setValue(data.duration);
-        sheet.getRange(i + 1, 5).setValue(data.category);
-        sheet.getRange(i + 1, 6).setValue(data.targetDate);
-        sheet.getRange(i + 1, 7).setValue(data.completed);
+        taskSheet.getRange(i + 1, 2).setValue(data.title);
+        taskSheet.getRange(i + 1, 3).setValue(data.priority);
+        taskSheet.getRange(i + 1, 4).setValue(data.duration);
+        taskSheet.getRange(i + 1, 5).setValue(data.category);
+        taskSheet.getRange(i + 1, 6).setValue(data.targetDate);
+        taskSheet.getRange(i + 1, 7).setValue(data.completed);
         break;
       }
     }
-    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  if (action === "delete") {
+  } else if (action === "delete") {
     for (var i = 1; i < rows.length; i++) {
       if (rows[i][0] == data.id) {
-        sheet.deleteRow(i + 1);
+        taskSheet.deleteRow(i + 1);
         break;
       }
     }
-    return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
   }
+  return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
 }</pre>
                                 <button onclick="copyScriptCode()" class="absolute right-2 top-2 bg-slate-800 text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all">
                                     <i class="fa-regular fa-copy"></i> Salin
@@ -998,6 +1002,17 @@ function doPost(e) {
             showToast('Kode Disalin!', 'Tempel kode tersebut di bagian Google Apps Script Anda.', 'success');
         }
 
+        function getLocalParameters() {
+            return {
+                pin: localStorage.getItem(STORAGE_KEY_PIN) || '2911',
+                sessionDuration: parseInt(localStorage.getItem(STORAGE_KEY_SESSION_DURATION)) || 10,
+                bannerTitle: localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋',
+                bannerSubtitle: localStorage.getItem(STORAGE_KEY_BANNER_SUBTITLE) || 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.',
+                baseColor: localStorage.getItem('prioritask_theme_color') || 'indigo',
+                appLogo: localStorage.getItem('prioritask_app_logo') || 'fa-square-check'
+            };
+        }
+
         function loadPreferences() {
             isDarkMode = localStorage.getItem(STORAGE_KEY_DARK_MODE) === 'true';
             applyTheme();
@@ -1005,15 +1020,15 @@ function doPost(e) {
             webAppUrl = localStorage.getItem(STORAGE_KEY_API_URL) || '';
             updateConnectionStatus();
 
-            currentPin = localStorage.getItem(STORAGE_KEY_PIN) || '2911';
-            sessionDuration = parseInt(localStorage.getItem(STORAGE_KEY_SESSION_DURATION)) || 10;
-            bannerTitle = localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋';
-            bannerSubtitle = localStorage.getItem(STORAGE_KEY_BANNER_SUBTITLE) || 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.';
+            const localParams = getLocalParameters();
+            currentPin = localParams.pin;
+            sessionDuration = localParams.sessionDuration;
+            bannerTitle = localParams.bannerTitle;
+            bannerSubtitle = localParams.bannerSubtitle;
+            selectedColor = localParams.baseColor;
+            selectedLogo = localParams.appLogo;
 
-            selectedColor = localStorage.getItem('prioritask_theme_color') || 'indigo';
             setBaseColor(selectedColor);
-
-            selectedLogo = localStorage.getItem('prioritask_app_logo') || 'fa-square-check';
             setAppLogo(selectedLogo);
             updateBannerUI();
         }
@@ -1025,24 +1040,44 @@ function doPost(e) {
 
         async function fetchTasks() {
             showShimmer(true);
-            let fetchedData = [];
+            let fetchedTasks = [];
+            let fetchedParams = null;
+            
             if (webAppUrl) {
                 try {
                     const response = await fetch(webAppUrl);
                     if (!response.ok) throw new Error('Koneksi Gagal');
-                    fetchedData = await response.json();
+                    const data = await response.json();
+                    
+                    // Deteksi struktur data baru (Tugas + Parameter JSON)
+                    if (data && data.tasks !== undefined) {
+                        fetchedTasks = data.tasks;
+                        fetchedParams = data.parameters;
+                    } else if (Array.isArray(data)) {
+                        fetchedTasks = data; // Backward compatibility lama
+                    }
                 } catch (error) {
                     showToast('Gagal Menghubungi Spreadsheet!', 'Menggunakan data cadangan lokal sementara.', 'warning');
-                    fetchedData = getLocalDataAll();
+                    fetchedTasks = getLocalDataAll();
                 }
             } else {
-                fetchedData = getLocalDataAll();
+                fetchedTasks = getLocalDataAll();
             }
 
-            const configRows = fetchedData.filter(item => item.id.startsWith('cfg_'));
-            tasks = fetchedData.filter(item => !item.id.startsWith('cfg_'));
+            // Bersihkan baris 'cfg_' lama jika masih menempel di array tasks
+            tasks = fetchedTasks.filter(item => !item.id.startsWith('cfg_'));
 
-            // Menggabungkan (Merge) data dari Google Sheets dengan status timer lokal peranti
+            // Terapkan parameter yang diambil dari Spreadsheet (Sheet PARAMETER)
+            if (fetchedParams && Object.keys(fetchedParams).length > 0) {
+                if (fetchedParams.pin) { currentPin = fetchedParams.pin; localStorage.setItem(STORAGE_KEY_PIN, currentPin); }
+                if (fetchedParams.sessionDuration) { sessionDuration = parseInt(fetchedParams.sessionDuration) || 10; localStorage.setItem(STORAGE_KEY_SESSION_DURATION, sessionDuration); }
+                if (fetchedParams.bannerTitle) { bannerTitle = fetchedParams.bannerTitle; localStorage.setItem(STORAGE_KEY_BANNER_TITLE, bannerTitle); }
+                if (fetchedParams.bannerSubtitle) { bannerSubtitle = fetchedParams.bannerSubtitle; localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, bannerSubtitle); }
+                if (fetchedParams.baseColor) { selectedColor = fetchedParams.baseColor; localStorage.setItem('prioritask_theme_color', selectedColor); setBaseColor(selectedColor); }
+                if (fetchedParams.appLogo) { selectedLogo = fetchedParams.appLogo; localStorage.setItem('prioritask_app_logo', selectedLogo); setAppLogo(selectedLogo); }
+            }
+
+            // Menggabungkan (Merge) data dengan status timer lokal peranti
             const localDataMap = {};
             getLocalDataAll().forEach(t => { localDataMap[t.id] = t; });
 
@@ -1051,14 +1086,12 @@ function doPost(e) {
                 const localTask = localDataMap[task.id];
                 task.inProgress = inProgressIds.includes(task.id) && !task.completed;
                 
-                // Setel memori sisa waktu (Play/Pause)
                 if (localTask && localTask.remainingMs !== undefined) {
                     task.remainingMs = localTask.remainingMs;
                 } else {
                     task.remainingMs = task.duration * 60 * 60 * 1000;
                 }
 
-                // Setel memori kapan terakhir kali diputar (Play)
                 if (localTask && localTask.lastStartedAt !== undefined) {
                     task.lastStartedAt = localTask.lastStartedAt;
                 } else if (task.inProgress) {
@@ -1067,19 +1100,6 @@ function doPost(e) {
                     task.lastStartedAt = null;
                 }
             });
-
-            const pinConfig = configRows.find(c => c.id === 'cfg_pin');
-            if (pinConfig) { currentPin = pinConfig.title; localStorage.setItem(STORAGE_KEY_PIN, currentPin); }
-            const sessionConfig = configRows.find(c => c.id === 'cfg_session_duration');
-            if (sessionConfig) { sessionDuration = parseInt(sessionConfig.title) || 10; localStorage.setItem(STORAGE_KEY_SESSION_DURATION, sessionDuration); }
-            const titleConfig = configRows.find(c => c.id === 'cfg_banner_title');
-            if (titleConfig) { bannerTitle = titleConfig.title; localStorage.setItem(STORAGE_KEY_BANNER_TITLE, bannerTitle); }
-            const subtitleConfig = configRows.find(c => c.id === 'cfg_banner_subtitle');
-            if (subtitleConfig) { bannerSubtitle = subtitleConfig.title; localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, bannerSubtitle); }
-            const colorConfig = configRows.find(c => c.id === 'cfg_base_color');
-            if (colorConfig) { selectedColor = colorConfig.title; localStorage.setItem('prioritask_theme_color', selectedColor); setBaseColor(selectedColor); }
-            const logoConfig = configRows.find(c => c.id === 'cfg_app_logo');
-            if (logoConfig) { selectedLogo = logoConfig.title; localStorage.setItem('prioritask_app_logo', selectedLogo); setAppLogo(selectedLogo); }
 
             updateBannerUI();
             showShimmer(false);
@@ -1090,27 +1110,34 @@ function doPost(e) {
         function getLocalDataAll() {
             const localTasks = localStorage.getItem(STORAGE_KEY_TASKS);
             let parsed = localTasks ? JSON.parse(localTasks) : [];
-            const localPin = localStorage.getItem(STORAGE_KEY_PIN) || '2911';
-            const localSession = localStorage.getItem(STORAGE_KEY_SESSION_DURATION) || '10';
-            const localTitle = localStorage.getItem(STORAGE_KEY_BANNER_TITLE) || 'Halo Sahabat Produktif! 👋';
-            const localSub = localStorage.getItem(STORAGE_KEY_BANNER_SUBTITLE) || 'Mari selesaikan rencana tugas hari ini dengan terstruktur. Data tersinkronisasi instan ke Spreadsheet Anda.';
-            const localColor = localStorage.getItem('prioritask_theme_color') || 'indigo';
-            const localLogo = localStorage.getItem('prioritask_app_logo') || 'fa-square-check';
-
-            if (!parsed.some(t => t.id === 'cfg_pin')) parsed.push({ id: 'cfg_pin', title: localPin, priority: 'config' });
-            if (!parsed.some(t => t.id === 'cfg_session_duration')) parsed.push({ id: 'cfg_session_duration', title: localSession, priority: 'config' });
-            if (!parsed.some(t => t.id === 'cfg_banner_title')) parsed.push({ id: 'cfg_banner_title', title: localTitle, priority: 'config' });
-            if (!parsed.some(t => t.id === 'cfg_banner_subtitle')) parsed.push({ id: 'cfg_banner_subtitle', title: localSub, priority: 'config' });
-            if (!parsed.some(t => t.id === 'cfg_base_color')) parsed.push({ id: 'cfg_base_color', title: localColor, priority: 'config' });
-            if (!parsed.some(t => t.id === 'cfg_app_logo')) parsed.push({ id: 'cfg_app_logo', title: localLogo, priority: 'config' });
-            return parsed;
+            // Pastikan tidak ada data config 'cfg_' yang masuk kembali ke daftar task murni
+            return parsed.filter(item => !item.id.startsWith('cfg_'));
         }
 
         function saveLocalTasks() {
-            const allSaved = getLocalDataAll();
-            const configRowsOnly = allSaved.filter(item => item.id.startsWith('cfg_'));
-            const finalMerged = [...configRowsOnly, ...tasks];
-            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(finalMerged));
+            // Murni hanya menyimpan data tugas sekarang, parameter ditangani sendiri
+            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(tasks));
+        }
+
+        async function saveAllParameters() {
+            const params = {
+                pin: currentPin,
+                sessionDuration: sessionDuration,
+                bannerTitle: bannerTitle,
+                bannerSubtitle: bannerSubtitle,
+                baseColor: selectedColor,
+                appLogo: selectedLogo
+            };
+
+            if (webAppUrl) {
+                try {
+                    await fetch(webAppUrl, {
+                        method: 'POST', mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'update_config', parameters: params })
+                    });
+                } catch (error) { console.error("Gagal sinkronisasi data parameter", error); }
+            }
         }
 
         function showShimmer(show) {
@@ -1245,7 +1272,7 @@ function doPost(e) {
             updateStatistics();
         }
 
-        async function toggleTaskComplete(id) {
+        function toggleTaskComplete(id) {
             const index = tasks.findIndex(t => t.id === id);
             if (index === -1) return;
 
@@ -1253,7 +1280,6 @@ function doPost(e) {
             tasks[index].completed = isDoneNow;
 
             if (isDoneNow) {
-                // Hentikan dan simpan sisa waktu jika selesai ditengah jalan
                 if (tasks[index].inProgress && tasks[index].lastStartedAt) {
                     const elapsed = Date.now() - tasks[index].lastStartedAt;
                     tasks[index].remainingMs = Math.max(0, tasks[index].remainingMs - elapsed);
@@ -1679,31 +1705,25 @@ function doPost(e) {
             }, 1000); 
         }
 
-        async function saveConfigToSpreadsheet(configId, configValue) {
-            const payload = {
-                id: configId, title: configValue, priority: 'config',
-                duration: 0, category: 'config', targetDate: new Date().toISOString().split('T')[0], completed: false
+        // --- NEW PARAMETER HANDLING SYSTEM ---
+        async function saveAllParameters() {
+            const params = {
+                pin: currentPin,
+                sessionDuration: sessionDuration,
+                bannerTitle: bannerTitle,
+                bannerSubtitle: bannerSubtitle,
+                baseColor: selectedColor,
+                appLogo: selectedLogo
             };
 
-            const localData = getLocalDataAll();
-            const configExists = localData.some(item => item.id === configId);
-            
-            const localTasks = localStorage.getItem(STORAGE_KEY_TASKS);
-            let parsed = localTasks ? JSON.parse(localTasks) : [];
-            const index = parsed.findIndex(t => t.id === configId);
-            if (index !== -1) parsed[index] = payload;
-            else parsed.push(payload);
-            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(parsed));
-
             if (webAppUrl) {
-                const actionType = configExists ? 'update' : 'create';
                 try {
                     await fetch(webAppUrl, {
                         method: 'POST', mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: actionType, ...payload })
+                        body: JSON.stringify({ action: 'update_config', parameters: params })
                     });
-                } catch (error) { console.error("Gagal sinkronisasi data config", error); }
+                } catch (error) { console.error("Gagal sinkronisasi data parameter", error); }
             }
         }
 
@@ -1731,11 +1751,12 @@ function doPost(e) {
 
             if (pinVal || confirmVal) {
                 currentPin = pinVal; localStorage.setItem(STORAGE_KEY_PIN, pinVal);
-                await saveConfigToSpreadsheet('cfg_pin', pinVal);
             }
 
             sessionDuration = durationVal; localStorage.setItem(STORAGE_KEY_SESSION_DURATION, durationVal);
-            await saveConfigToSpreadsheet('cfg_session_duration', durationVal.toString());
+            
+            // Save to backend parameters
+            await saveAllParameters();
 
             btn.disabled = false; btn.classList.remove('opacity-80', 'cursor-not-allowed');
             if (btnIcon) btnIcon.className = origIconClass;
@@ -1774,8 +1795,9 @@ function doPost(e) {
             localStorage.setItem(STORAGE_KEY_BANNER_SUBTITLE, subtitleVal);
 
             updateBannerUI();
-            await saveConfigToSpreadsheet('cfg_banner_title', titleVal);
-            await saveConfigToSpreadsheet('cfg_banner_subtitle', subtitleVal);
+            
+            // Save to backend parameters
+            await saveAllParameters();
 
             btn.disabled = false; btn.classList.remove('opacity-80', 'cursor-not-allowed');
             if (btnIcon) btnIcon.className = origIconClass;
@@ -1800,8 +1822,9 @@ function doPost(e) {
 
             localStorage.setItem('prioritask_theme_color', selectedColor);
             localStorage.setItem('prioritask_app_logo', selectedLogo);
-            await saveConfigToSpreadsheet('cfg_base_color', selectedColor);
-            await saveConfigToSpreadsheet('cfg_app_logo', selectedLogo);
+            
+            // Save to backend parameters
+            await saveAllParameters();
 
             btn.disabled = false; btn.classList.remove('opacity-80', 'cursor-not-allowed');
             if (btnIcon) btnIcon.className = origIconClass;
