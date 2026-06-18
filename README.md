@@ -1,9 +1,3 @@
-Saya tidak perlu membuatkan fail tambahan karena respons saya sebelumnya sudah sepenuhnya dalam format **Markdown**, tepatnya di dalam blok berkas (file block) dengan ekstensi `.md`.
-
-Namun, jika maksud Anda adalah menampilkan draf *README* tersebut secara langsung sebagai respons percakapan biasa (tanpa dimasukkan ke dalam blok berkas), berikut adalah format Markdown-nya:
-
----
-
 # 🚀 Prioritask - Sistem Manajemen Tugas Premium
 
 Prioritask adalah aplikasi web manajemen tugas (To-Do List) satu halaman (*Single Page Application*) kelas atas yang dirancang untuk meningkatkan produktivitas harian Anda. Aplikasi ini menggabungkan antarmuka pengguna (UI) yang elegan, fitur keamanan bawaan, pengatur waktu fokus (*countdown timer*), dan sinkronisasi basis data nirserver (*serverless*) menggunakan Google Spreadsheet.
